@@ -56,8 +56,8 @@
     </div>
 
     <!-- Middle: Search Bar -->
-    <div class="hidden md:flex items-center bg-slate-100 rounded-xl px-3 py-2 w-80 focus-within:ring-2 focus-within:ring-teal-400 transition">
-      <svg class="w-5 h-5 text-slate-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div class="hidden md:flex items-center bg-slate-100 rounded-xl px-3 py-2 w-80 focus-within:ring-2 focus-within:ring-teal-400 transition ms-auto">
+        <svg class="w-5 h-5 text-slate-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
           d="M21 21l-4.35-4.35M10 18a8 8 0 110-16 8 8 0 010 16z" />
       </svg>
@@ -69,6 +69,26 @@
         oninput="handleSearch(event)"
       />
     </div>
+    <div class="relative w-48 ms-auto ">
+    <select
+      id="locationFilter"
+      onchange="renderEmployees()"
+      class="pl-10 pr-4 py-1.5 border-2 border-slate-200 rounded-lg text-sm text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all w-full"
+    >
+      <option value="all">All Locations</option>
+      <option value="Delhi">Delhi</option>
+      <option value="Mumbai">Mumbai</option>
+      <option value="Bangalore">Bangalore</option>
+      <option value="Hyderabad">Hyderabad</option>
+    </select>
+    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+      <!-- Red Google Maps Pin SVG -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+      </svg>
+    </div>
+  </div>
+
 
     <!-- Right: Notifications + Profile -->
     <div class="flex items-center gap-3">
@@ -763,14 +783,14 @@
     let notifications = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]');
 
     const employees = [
-      { id: 1, name: 'Arun Kumar', services: ['Home Cleaning', 'Kitchen', 'Bathroom'], status: 'Available', phone: '+91 98765 11111' },
-      { id: 2, name: 'Priya Sharma', services: ['Office Cleaning', 'Sofa & Carpet'], status: 'Available', phone: '+91 98765 22222' },
-      { id: 3, name: 'Ravi Singh', services: ['Pest Control', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 33333' },
-      { id: 4, name: 'Sunita Devi', services: ['Kitchen', 'Bathroom', 'Home Cleaning'], status: 'Available', phone: '+91 98765 44444' },
-      { id: 5, name: 'Anil Mehta', services: ['Painting', 'Home Cleaning'], status: 'Available', phone: '+91 98765 55555' },
-      { id: 6, name: 'Geeta Gupta', services: ['AC Service', 'Appliance Repair'], status: 'Available', phone: '+91 98765 66666' },
-      { id: 7, name: 'Sanjay Verma', services: ['Office Cleaning', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 77777' },
-      { id: 8, name: 'Meena Kumari', services: ['Sofa & Carpet', 'Home Cleaning'], status: 'Available', phone: '+91 98765 88888' }
+      { id: 1, name: 'Arun Kumar', services: ['Home Cleaning', 'Kitchen', 'Bathroom'], status: 'Available', phone: '+91 98765 11111',location: 'Hyderabad'},
+      { id: 2, name: 'Priya Sharma', services: ['Office Cleaning', 'Sofa & Carpet'], status: 'Available', phone: '+91 98765 22222',location: 'Bangalore' },
+      { id: 3, name: 'Ravi Singh', services: ['Pest Control', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 33333' ,location: 'Hyderabad'},
+      { id: 4, name: 'Sunita Devi', services: ['Kitchen', 'Bathroom', 'Home Cleaning'], status: 'Available', phone: '+91 98765 44444',location: 'Delhi' },
+      { id: 5, name: 'Anil Mehta', services: ['Painting', 'Home Cleaning'], status: 'Available', phone: '+91 98765 55555',location: 'Mumbai' },
+      { id: 6, name: 'Geeta Gupta', services: ['AC Service', 'Appliance Repair'], status: 'Available', phone: '+91 98765 66666',location: 'Bangalore' },
+      { id: 7, name: 'Sanjay Verma', services: ['Office Cleaning', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 77777',location: 'Delhi' },
+      { id: 8, name: 'Meena Kumari', services: ['Sofa & Carpet', 'Home Cleaning'], status: 'Available', phone: '+91 98765 88888' ,location: 'Mumbai'}
     ];
 
     // Initialize
@@ -1095,28 +1115,48 @@
     }
     
     // Render Employees
+    // Render Employees
     function renderEmployees() {
-      const container = document.getElementById('employeeGrid');
+  const container = document.getElementById('employeeGrid');
+  const selectedLocation = document.getElementById('locationFilter')?.value || 'all';
 
-      container.innerHTML = employees.map(emp => `
-        <div class="bg-white rounded-xl p-6 border-2 ${emp.status === 'Available' ? 'border-emerald-200' : 'border-amber-200'}">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white text-xl font-bold">${emp.name.charAt(0)}</div>
-            <div class="flex-1">
-              <h3 class="font-bold text-lg">${emp.name}</h3>
-              <p class="text-xs ${emp.status === 'Available' ? 'text-emerald-600' : 'text-amber-600'}">● ${emp.status}</p>
-            </div>
-          </div>
-          <div class="mb-3">
-            <p class="text-xs text-slate-500 mb-1">Specialties:</p>
-            <div class="flex flex-wrap gap-1">
-              ${emp.services.map(s => `<span class="text-xs px-2 py-1 bg-teal-50 text-teal-600 rounded-full">${s}</span>`).join('')}
-            </div>
-          </div>
-          <p class="text-sm text-slate-600">📞 ${emp.phone}</p>
-        </div>`).join('');
-    }
-     function filterEmployees() {
+
+  const filteredEmployees = selectedLocation === 'all'
+    ? employees
+    : employees.filter(emp => emp.location === selectedLocation);
+
+
+  if (filteredEmployees.length === 0) {
+    container.innerHTML = '<p class="text-center text-slate-400 col-span-full">No employees in this location</p>';
+    return;
+  }
+
+
+  container.innerHTML = filteredEmployees.map(emp => `
+    <div class="bg-white rounded-xl p-6 border-2 ${emp.status === 'Available' ? 'border-emerald-200' : 'border-amber-200'}">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white text-xl font-bold">
+          ${emp.name.charAt(0)}
+        </div>
+        <div class="flex-1">
+          <h3 class="font-bold text-lg">${emp.name}</h3>
+          <p class="text-xs ${emp.status === 'Available' ? 'text-emerald-600' : 'text-amber-600'}">● ${emp.status}</p>
+        </div>
+      </div>
+      <div class="mb-3">
+        <p class="text-xs text-slate-500 mb-1">Specialties:</p>
+        <div class="flex flex-wrap gap-1">
+          ${emp.services.map(s => `<span class="text-xs px-2 py-1 bg-teal-50 text-teal-600 rounded-full">${s}</span>`).join('')}
+        </div>
+      </div>
+      <p class="text-sm text-slate-600">📍 ${emp.location}</p>
+      <p class="text-sm text-slate-600">📞 ${emp.phone}</p>
+    </div>
+  `).join('');
+}
+
+
+    function filterEmployees() {
   const searchTerm = document.getElementById('employeeSearch').value.toLowerCase();
   const cards = document.querySelectorAll('#employeeGrid > div');
 
