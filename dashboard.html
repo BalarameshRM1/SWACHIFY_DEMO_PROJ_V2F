@@ -128,7 +128,7 @@
   function handleSearch(event) {
     const query = event.target.value.toLowerCase();
     console.log("Searching for:", query);
-    // 👉 You can implement real filtering logic here.
+    // You can implement real filtering logic here.
   }
 </script>
 
@@ -297,12 +297,96 @@
             </div>
           </div>
         </div>
+    
+        <!-- ✅ Fixed Help Button -->
+<div id="chatButton" 
+   class="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-full shadow-lg flex items-center gap-2 font-semibold transition-all cursor-pointer z-50">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="w-5 h-5" />
+  Help
+</div>
+
+
+
+<!-- ✅ Popup Form -->
+<div id="chatPopup" 
+     class="hidden fixed bottom-24 right-6 bg-white shadow-2xl rounded-2xl w-80 p-5 border border-slate-200 transition-all z-50">
+  <div class="flex justify-between items-center mb-3">
+    <h2 class="text-lg font-semibold text-slate-800">WhatsApp Us</h2>
+    <button id="closePopup" class="text-slate-500 hover:text-red-500 text-xl">&times;</button>
+  </div>
+
+
+  <form id="whatsappForm" class="space-y-3">
+    <div>
+      <label class="block text-sm text-slate-600 mb-1">Name</label>
+      <input type="text" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="Enter your name" required>
+    </div>
+
+
+    <div>
+      <label class="block text-sm text-slate-600 mb-1">Your WhatsApp Number</label>
+      <input type="tel" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="+91 9876543210" required>
+    </div>
+
+
+    <div>
+      <label class="block text-sm text-slate-600 mb-1">Query</label>
+      <textarea class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400" rows="3" placeholder="Type your message..." required></textarea>
+    </div>
+
+
+    <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-semibold transition-all">
+      Send on WhatsApp
+    </button>
+  </form>
+</div>
+
+
+<!-- ✅ Popup Logic -->
+<script>
+  const chatButton = document.getElementById('chatButton');
+  const chatPopup = document.getElementById('chatPopup');
+  const closePopup = document.getElementById('closePopup');
+  const form = document.getElementById('whatsappForm');
+
+
+  // Toggle popup
+  chatButton.addEventListener('click', () => {
+    chatPopup.classList.toggle('hidden');
+  });
+
+
+  closePopup.addEventListener('click', () => {
+    chatPopup.classList.add('hidden');
+  });
+
+
+  // Handle form submission
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = form.querySelector('input[type="text"]').value;
+    const number = form.querySelector('input[type="tel"]').value.replace(/\D/g, '');
+    const query = form.querySelector('textarea').value;
+
+
+    const message = `Hello, my name is ${name}. ${query}`;
+    const whatsappURL = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappURL, '_blank');
+  });
+</script>
+    
       </section>
 
       <!-- Services Section -->
       <section id="services" class="content-section hidden fade-in">
         <h2 class="text-3xl font-bold mb-2">Request a Service</h2>
         <p class="text-slate-600 mb-8">Select the service you need</p>
+        <input type="text"
+              id="serviceSearch"
+              placeholder="Search services..."
+              class="mb-6 p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-400 w-full max-w-md text-sm text-slate-700 placeholder-slate-500"
+              oninput="filterServices()"
+            />
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div onclick="requestService('Home Deep Cleaning', '₹999')" class="bg-white rounded-xl p-6 border-2 border-slate-200 hover:border-teal-500 hover:shadow-xl transition-all cursor-pointer group">
@@ -377,7 +461,27 @@
             <p class="text-pink-600 font-bold">From ₹2,499</p>
           </div>
         </div>
+        <script>
+          function filterServices() {
+  const searchTerm = document.getElementById('serviceSearch').value.toLowerCase();
+  const cards = document.querySelectorAll('#services .grid > div');
+
+
+  cards.forEach(card => {
+    const serviceName = card.querySelector('h3').textContent.toLowerCase();
+    const serviceDesc = card.querySelector('p').textContent.toLowerCase();
+    if (serviceName.includes(searchTerm) || serviceDesc.includes(searchTerm)) {
+      card.style.display = 'block'; // Show the card
+    } else {
+      card.style.display = 'none';  // Hide the card
+    }
+  });
+}
+
+
+        </script>
       </section>
+
 
       <!-- Bookings Section -->
       <section id="bookings" class="content-section hidden fade-in">
@@ -402,6 +506,7 @@
         <div class="mb-6 flex gap-3">
           <button onclick="filterTickets('all')" class="ticket-filter-btn px-4 py-2 rounded-lg bg-teal-600 text-white font-medium">All</button>
           <button onclick="filterTickets('open')" class="ticket-filter-btn px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-medium">Open</button>
+          <button onclick="filterTickets('in-progress')" class="ticket-filter-btn px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-medium">In Progress</button>
           <button onclick="filterTickets('completed')" class="ticket-filter-btn px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-medium">Completed</button>
         </div>
 
@@ -419,6 +524,14 @@
       <section id="employees" class="content-section hidden fade-in">
         <h2 class="text-3xl font-bold mb-2">Employee Management</h2>
         <p class="text-slate-600 mb-8">View and manage your cleaning staff</p>
+        <input type="text"
+                id="employeeSearch"
+                placeholder="Search employees by name or service..."
+                class="mb-6 p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-400 w-full max-w-md text-sm text-slate-700 placeholder-slate-500"
+                oninput="filterEmployees()"
+              />
+
+
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="employeeGrid">
           <!-- Employee cards will be inserted here -->
@@ -601,6 +714,42 @@
     </div>
   </div>
 
+  <!-- OTP Verification Modal -->
+  <div id="otpModal" class="hidden fixed inset-0 bg-black/50 modal flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 fade-in shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="otpModalTitle" class="text-xl font-bold">Verify OTP</h3>
+        <button onclick="closeOtpModal()" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <form id="otpForm" onsubmit="verifyOTP(event)">
+        <input type="hidden" id="otpTicketId">
+        <input type="hidden" id="otpType">
+        
+        <p class="text-sm text-slate-600 mb-2">Enter the 4-digit OTP provided by the customer to proceed.</p>
+
+        <input 
+          type="tel" 
+          id="otpInput"
+          maxlength="4"
+          required
+          class="w-full text-center text-3xl tracking-[1em] font-bold py-3 border-2 border-slate-300 rounded-xl focus:border-teal-500 focus:outline-none transition-colors"
+          placeholder="----"
+        >
+        <div id="otpError" class="text-red-500 text-sm mt-2 text-center h-4"></div>
+
+        <button type="submit" class="w-full mt-4 bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-3 rounded-lg font-semibold hover:shadow-md transition-all">
+          Verify & Proceed
+        </button>
+      </form>
+    </div>
+  </div>
+
+
   <script>
     // Data Storage
     const STORAGE_KEYS = {
@@ -635,7 +784,6 @@
       updateDashboard();
       renderNotifications();
       
-      // Set minimum date for service booking
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('serviceDate').min = today;
     });
@@ -653,13 +801,9 @@
 
     // Navigation
     function showSection(section) {
-      // Hide all sections
       document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
-      
-      // Show selected section
       document.getElementById(section).classList.remove('hidden');
       
-      // Update sidebar buttons
       document.querySelectorAll('.sidebar-btn').forEach(btn => {
         btn.classList.remove('sidebar-active', 'text-white');
         btn.classList.add('text-slate-600');
@@ -669,12 +813,7 @@
         }
       });
 
-      // Close mobile menu
-      if (window.innerWidth < 1024) {
-        toggleSidebar();
-      }
-
-      // Update content
+      if (window.innerWidth < 1024) toggleSidebar();
       if (section === 'bookings') renderBookings();
       if (section === 'tickets') renderTickets();
     }
@@ -710,10 +849,7 @@
 
       bookings.push(booking);
       localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
-
-      // Add notification
       addNotification(`New booking: ${booking.service} for ${booking.customerName}`);
-
       closeServiceModal();
       showSection('bookings');
       updateDashboard();
@@ -725,14 +861,7 @@
       const pendingBookings = bookings.filter(b => b.status === 'Pending');
 
       if (pendingBookings.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-12 text-slate-400">
-            <svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <p>No pending bookings</p>
-          </div>
-        `;
+        container.innerHTML = `<div class="text-center py-12 text-slate-400"><svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><p>No pending bookings</p></div>`;
         return;
       }
 
@@ -742,25 +871,81 @@
             <div class="flex-1">
               <h3 class="font-bold text-lg mb-2">${booking.service}</h3>
               <div class="space-y-1 text-sm text-slate-600">
-                <p>👤 ${booking.customerName}</p>
-                <p>📞 ${booking.phone}</p>
-                <p>📍 ${booking.address}</p>
+                <p>👤 ${booking.customerName}</p><p>📞 ${booking.phone}</p><p>📍 ${booking.address}</p>
                 <p>📅 ${new Date(booking.date).toLocaleDateString()} at ${booking.time}</p>
                 <p class="text-teal-600 font-semibold">${booking.price}</p>
               </div>
             </div>
             <div class="flex flex-col gap-2">
-              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-600 text-center">
-                ${booking.status}
-              </span>
-              <button onclick="openEmployeeModal(${booking.id})" class="px-4 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition-all">
-                Assign Employee
-              </button>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-600 text-center">${booking.status}</span>
+              <button onclick="openEmployeeModal(${booking.id})" class="px-4 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition-all">Assign Employee</button>
             </div>
           </div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
+    
+    // --- OTP Functionality START ---
+
+    function generateOTP() {
+      return Math.floor(1000 + Math.random() * 9000).toString();
+    }
+
+    function promptForOTP(ticketId, type) {
+      document.getElementById('otpTicketId').value = ticketId;
+      document.getElementById('otpType').value = type;
+      document.getElementById('otpModalTitle').textContent = `Verify ${type === 'start' ? 'Start' : 'Completion'} OTP`;
+      document.getElementById('otpModal').classList.remove('hidden');
+      document.getElementById('otpInput').focus();
+    }
+    
+    function closeOtpModal() {
+        document.getElementById('otpModal').classList.add('hidden');
+        document.getElementById('otpForm').reset();
+        document.getElementById('otpError').textContent = '';
+    }
+    
+    function verifyOTP(event) {
+      event.preventDefault();
+      const ticketId = parseInt(document.getElementById('otpTicketId').value);
+      const type = document.getElementById('otpType').value;
+      const enteredOtp = document.getElementById('otpInput').value;
+      const errorDiv = document.getElementById('otpError');
+      
+      const ticket = tickets.find(t => t.id === ticketId);
+      let correctOtp;
+
+      if (type === 'start') {
+        correctOtp = ticket.startOTP;
+      } else {
+        correctOtp = ticket.endOTP;
+      }
+
+      if (enteredOtp === correctOtp) {
+        errorDiv.textContent = '';
+        if (type === 'start') {
+          ticket.status = 'In Progress';
+          ticket.endOTP = generateOTP(); // Generate OTP for completion
+          addNotification(`Service started for ticket #${ticket.id}`);
+        } else {
+          ticket.status = 'Completed';
+          ticket.completedAt = new Date().toISOString();
+          const employee = employees.find(e => e.id === ticket.employeeId);
+          if (employee) employee.status = 'Available';
+          addNotification(`Service completed for ticket #${ticket.id}`);
+        }
+        
+        localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(tickets));
+        closeOtpModal();
+        renderTickets();
+        renderEmployees();
+        updateDashboard();
+
+      } else {
+        errorDiv.textContent = 'Invalid OTP. Please try again.';
+      }
+    }
+
+    // --- OTP Functionality END ---
 
     // Employee Assignment
     function openEmployeeModal(bookingId) {
@@ -774,17 +959,14 @@
       container.innerHTML = availableEmployees.map(emp => `
         <div onclick="assignEmployeeToBooking(${emp.id})" class="p-4 border-2 border-slate-200 rounded-xl hover:border-teal-500 hover:bg-teal-50 cursor-pointer transition-all">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold">
-              ${emp.name.charAt(0)}
-            </div>
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold">${emp.name.charAt(0)}</div>
             <div>
               <p class="font-bold">${emp.name}</p>
               <p class="text-xs text-slate-600">${emp.services.join(', ')}</p>
               <p class="text-xs text-green-600 mt-1">● ${emp.status}</p>
             </div>
           </div>
-        </div>
-      `).join('');
+        </div>`).join('');
 
       document.getElementById('employeeModal').classList.remove('hidden');
     }
@@ -798,12 +980,10 @@
       const booking = bookings.find(b => b.id === bookingId);
       const employee = employees.find(e => e.id === employeeId);
 
-      // Update booking status
       booking.status = 'Assigned';
       booking.assignedTo = employee.name;
       booking.employeeId = employeeId;
 
-      // Create ticket
       const ticket = {
         id: Date.now(),
         bookingId: bookingId,
@@ -814,22 +994,19 @@
         time: booking.time,
         employee: employee.name,
         employeeId: employeeId,
-        status: 'Open',
-        createdAt: new Date().toISOString()
+        status: 'Open', // Initial status
+        createdAt: new Date().toISOString(),
+        startOTP: generateOTP(), // OTP to start the service
+        endOTP: null // OTP to end the service (generated later)
       };
 
       tickets.push(ticket);
-
-      // Update employee status
       employee.status = 'Assigned';
 
-      // Save to localStorage
       localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
       localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(tickets));
 
-      // Add notification
       addNotification(`Ticket assigned to ${employee.name} for ${booking.service}`);
-
       closeEmployeeModal();
       renderBookings();
       renderEmployees();
@@ -842,32 +1019,48 @@
       const container = document.getElementById('ticketsList');
       let filteredTickets = tickets;
 
-      if (filter === 'open') {
-        filteredTickets = tickets.filter(t => t.status === 'Open');
-      } else if (filter === 'completed') {
-        filteredTickets = tickets.filter(t => t.status === 'Completed');
+      if (filter !== 'all') {
+        if (filter === 'in-progress') {
+           filteredTickets = tickets.filter(t => t.status === 'In Progress');
+        } else {
+           filteredTickets = tickets.filter(t => t.status.toLowerCase() === filter);
+        }
       }
 
       if (filteredTickets.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-12 text-slate-400">
-            <svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-            </svg>
-            <p>No tickets found</p>
-          </div>
-        `;
+        container.innerHTML = `<div class="text-center py-12 text-slate-400"><svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg><p>No tickets found</p></div>`;
         return;
       }
 
-      container.innerHTML = filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(ticket => `
-        <div class="bg-white rounded-xl p-6 border-2 ${ticket.status === 'Open' ? 'border-amber-200' : 'border-emerald-200'}">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      container.innerHTML = filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(ticket => {
+        let statusColor, borderColor, actionButton;
+
+        switch (ticket.status) {
+          case 'Open':
+            statusColor = 'bg-amber-100 text-amber-600';
+            borderColor = 'border-amber-200';
+            actionButton = `<button onclick="promptForOTP(${ticket.id}, 'start')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all">Start Service</button>`;
+            break;
+          case 'In Progress':
+            statusColor = 'bg-blue-100 text-blue-600';
+            borderColor = 'border-blue-200';
+            actionButton = `<button onclick="promptForOTP(${ticket.id}, 'end')" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-all">Complete Service</button>`;
+            break;
+          case 'Completed':
+            statusColor = 'bg-emerald-100 text-emerald-600';
+            borderColor = 'border-emerald-200';
+            actionButton = `<div class="text-emerald-600 font-semibold text-center md:text-right">✓ Completed</div>`;
+            break;
+        }
+
+        const otpForDemo = ticket.status === 'Open' ? ticket.startOTP : (ticket.endOTP || 'N/A');
+
+        return `
+        <div class="bg-white rounded-xl p-6 border-2 ${borderColor}">
+          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div class="flex-1">
               <div class="flex items-center gap-3 mb-3">
-                <span class="px-3 py-1 rounded-full text-xs font-semibold ${ticket.status === 'Open' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}">
-                  ${ticket.status}
-                </span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusColor}">${ticket.status}</span>
                 <span class="text-xs text-slate-500">Ticket #${ticket.id.toString().slice(-6)}</span>
               </div>
               <h3 class="font-bold text-lg mb-2">${ticket.service}</h3>
@@ -878,16 +1071,16 @@
                 <p>📅 ${new Date(ticket.date).toLocaleDateString()} at ${ticket.time}</p>
               </div>
             </div>
-            ${ticket.status === 'Open' ? `
-              <button onclick="completeTicket(${ticket.id})" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-all">
-                Mark Complete
-              </button>
-            ` : `
-              <div class="text-emerald-600 font-semibold">✓ Completed</div>
-            `}
+            <div class="flex flex-col items-stretch gap-3">
+              ${actionButton}
+              <div class="mt-2 p-2 bg-slate-100 rounded-lg text-center">
+                <p class="text-xs text-slate-500">For Demo: Customer's OTP</p>
+                <p class="font-bold text-xl text-red-500 tracking-widest">${otpForDemo}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      `).join('');
+        </div>`
+      }).join('');
     }
 
     function filterTickets(filter) {
@@ -900,25 +1093,7 @@
       
       renderTickets(filter);
     }
-
-    function completeTicket(ticketId) {
-      const ticket = tickets.find(t => t.id === ticketId);
-      ticket.status = 'Completed';
-      ticket.completedAt = new Date().toISOString();
-
-      // Update employee status back to Available
-      const employee = employees.find(e => e.id === ticket.employeeId);
-      employee.status = 'Available';
-
-      localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(tickets));
-
-      addNotification(`Ticket completed: ${ticket.service} by ${ticket.employee}`);
-
-      renderTickets();
-      renderEmployees();
-      updateDashboard();
-    }
-
+    
     // Render Employees
     function renderEmployees() {
       const container = document.getElementById('employeeGrid');
@@ -926,9 +1101,7 @@
       container.innerHTML = employees.map(emp => `
         <div class="bg-white rounded-xl p-6 border-2 ${emp.status === 'Available' ? 'border-emerald-200' : 'border-amber-200'}">
           <div class="flex items-center gap-3 mb-4">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white text-xl font-bold">
-              ${emp.name.charAt(0)}
-            </div>
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white text-xl font-bold">${emp.name.charAt(0)}</div>
             <div class="flex-1">
               <h3 class="font-bold text-lg">${emp.name}</h3>
               <p class="text-xs ${emp.status === 'Available' ? 'text-emerald-600' : 'text-amber-600'}">● ${emp.status}</p>
@@ -941,22 +1114,31 @@
             </div>
           </div>
           <p class="text-sm text-slate-600">📞 ${emp.phone}</p>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
+     function filterEmployees() {
+  const searchTerm = document.getElementById('employeeSearch').value.toLowerCase();
+  const cards = document.querySelectorAll('#employeeGrid > div');
+
+
+  cards.forEach(card => {
+    const name = card.querySelector('h3').textContent.toLowerCase();
+    const services = Array.from(card.querySelectorAll('.text-xs.px-2')).map(el => el.textContent.toLowerCase()).join(' ');
+
+
+    if (name.includes(searchTerm) || services.includes(searchTerm)) {
+      card.style.display = 'block'; // Show card
+    } else {
+      card.style.display = 'none';  // Hide card
+    }
+  });
+}
 
     // Notifications
     function addNotification(message) {
-      const notification = {
-        id: Date.now(),
-        message: message,
-        read: false,
-        timestamp: new Date().toISOString()
-      };
-
+      const notification = { id: Date.now(), message, read: false, timestamp: new Date().toISOString() };
       notifications.unshift(notification);
       localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
-      
       renderNotifications();
       updateDashboard();
     }
@@ -964,7 +1146,6 @@
     function renderNotifications() {
       const container = document.getElementById('notificationList');
       const badge = document.getElementById('notifBadge');
-      
       const unreadCount = notifications.filter(n => !n.read).length;
       badge.textContent = unreadCount;
       badge.classList.toggle('hidden', unreadCount === 0);
@@ -978,15 +1159,12 @@
         <div class="p-4 hover:bg-slate-50 ${!notif.read ? 'bg-teal-50' : ''}">
           <p class="text-sm ${!notif.read ? 'font-semibold' : ''}">${notif.message}</p>
           <p class="text-xs text-slate-500 mt-1">${new Date(notif.timestamp).toLocaleString()}</p>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
 
     function toggleNotifications() {
       const panel = document.getElementById('notificationPanel');
       panel.classList.toggle('hidden');
-      
-      // Mark all as read when opened
       if (!panel.classList.contains('hidden')) {
         notifications.forEach(n => n.read = true);
         localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
@@ -1004,53 +1182,30 @@
     function updateDashboard() {
       document.getElementById('totalServices').textContent = bookings.length;
       document.getElementById('activeBookings').textContent = bookings.filter(b => b.status === 'Pending').length;
-      document.getElementById('openTickets').textContent = tickets.filter(t => t.status === 'Open').length;
+      document.getElementById('openTickets').textContent = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
       document.getElementById('bookingBadge').textContent = bookings.filter(b => b.status === 'Pending').length;
-      document.getElementById('ticketBadge').textContent = tickets.filter(t => t.status === 'Open').length;
-
-      // Recent bookings
+      document.getElementById('ticketBadge').textContent = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
+      
       const recentBookings = bookings.slice(-5).reverse();
       const recentContainer = document.getElementById('recentBookingsList');
-      
-      if (recentBookings.length === 0) {
-        recentContainer.innerHTML = '<p class="text-center py-8 text-slate-400">No recent bookings</p>';
-      } else {
-        recentContainer.innerHTML = recentBookings.map(b => `
-          <div class="p-3 border-2 border-slate-200 rounded-lg">
-            <p class="font-semibold">${b.service}</p>
-            <p class="text-sm text-slate-600">${b.customerName}</p>
-            <span class="text-xs px-2 py-1 rounded-full ${b.status === 'Pending' ? 'bg-amber-100 text-amber-600' : 'bg-teal-100 text-teal-600'}">${b.status}</span>
-          </div>
-        `).join('');
-      }
+      recentContainer.innerHTML = recentBookings.length ? recentBookings.map(b => `<div class="p-3 border-2 border-slate-200 rounded-lg"><p class="font-semibold">${b.service}</p><p class="text-sm text-slate-600">${b.customerName}</p><span class="text-xs px-2 py-1 rounded-full ${b.status === 'Pending' ? 'bg-amber-100 text-amber-600' : 'bg-teal-100 text-teal-600'}">${b.status}</span></div>`).join('') : '<p class="text-center py-8 text-slate-400">No recent bookings</p>';
 
-      // Active tickets
-      const activeTickets = tickets.filter(t => t.status === 'Open').slice(-5).reverse();
+      const activeTickets = tickets.filter(t => t.status !== 'Completed').slice(-5).reverse();
       const ticketsContainer = document.getElementById('activeTicketsList');
-      
-      if (activeTickets.length === 0) {
-        ticketsContainer.innerHTML = '<p class="text-center py-8 text-slate-400">No active tickets</p>';
-      } else {
-        ticketsContainer.innerHTML = activeTickets.map(t => `
-          <div class="p-3 border-2 border-amber-200 rounded-lg">
-            <p class="font-semibold">${t.service}</p>
-            <p class="text-sm text-slate-600">👷 ${t.employee}</p>
-            <span class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-600">${t.status}</span>
-          </div>
-        `).join('');
-      }
+      ticketsContainer.innerHTML = activeTickets.length ? activeTickets.map(t => `<div class="p-3 border-2 border-amber-200 rounded-lg"><p class="font-semibold">${t.service}</p><p class="text-sm text-slate-600">👷 ${t.employee}</p><span class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-600">${t.status}</span></div>`).join('') : '<p class="text-center py-8 text-slate-400">No active tickets</p>';
     }
 
     // Logout
     function logout() {
       if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('swachify_current_user'); // Assuming you have this
         window.location.href = 'index.html';
       }
     }
 
-    // Close dropdowns when clicking outside
+    // Close dropdowns
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('#notificationBtn') && !e.target.closest('#notificationPanel')) {
+      if (!e.target.closest('button[onclick="toggleNotifications()"]') && !e.target.closest('#notificationPanel')) {
         document.getElementById('notificationPanel').classList.add('hidden');
       }
     });
