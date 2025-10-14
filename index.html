@@ -1,435 +1,216 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Swachify Admin Dashboard</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Swachify — Professional Cleaning Services</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:," />
   <style>
-    body { font-family: 'Inter', sans-serif; overflow: hidden; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     
-    .fade-in { animation: fadeIn 0.3s ease-in; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    body { 
+      font-family: 'Inter', sans-serif; 
     }
-
-    .notification-dot {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    
+    .slide-in { 
+      animation: slide-in .3s ease-out; 
     }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .5; }
+    
+    @keyframes slide-in { 
+      from { opacity: 0; transform: translateY(12px); } 
+      to { opacity: 1; transform: translateY(0); } 
     }
-
-    .sidebar-active {
+    
+    .fade-in { 
+      animation: fade-in .6s ease-out; 
+    }
+    
+    @keyframes fade-in { 
+      from { opacity: 0; } 
+      to { opacity: 1; } 
+    }
+    
+    .gradient-text {
       background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
-      color: white;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .service-card {
+      transition: all 0.3s ease;
+    }
+    
+    .service-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(13, 148, 136, 0.15);
+    }
+    
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.2;
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
     }
 
-    .modal {
-      backdrop-filter: blur(4px);
+    .sparkle {
+      animation: sparkle 2s ease-in-out infinite;
     }
-     /* Style for the back button */
-     .back-button {
-        display: inline-flex;
-        align-items: center;
-        padding: 8px 16px;
-        border-radius: 8px;
-        background-color: #f1f5f9;
-        color: #475569;
-        font-weight: 500;
-        transition: background-color: 0.3s;
-    }
-    .back-button:hover {
-        background-color: #e2e8f0;
-    }
-    /* Ensure all views are hidden by default, JS will manage visibility */
-    .view {
-        display: none;
-    }
-    /* Class to show the active view */
-    .view.active {
-        display: block;
-    }
-    /* Custom styling for acknowledgement checkmark */
-    .checkmark-circle {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #dcfce7; /* green-100 */
-    }
-    .checkmark {
-        width: 40px;
-        height: 40px;
-        color: #22c55e; /* green-500 */
-    }
-    /* Custom Scrollbar */
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
-    .service-card-hover:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        border-color: #14b8a6;
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
     }
   </style>
 </head>
-<body class="bg-slate-50">
-
-  <!-- Loading Splash -->
-  <div id="splash" class="fixed inset-0 flex items-center justify-center bg-white z-50 transition-opacity duration-500">
-    <img src="./SWACHIFY gif.gif" alt="Loading" class="w-32 h-32 rounded-full shadow-2xl" />
-  </div>
-
-  <!-- Top Navigation -->
-  <header class="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-40">
-  <div class="flex items-center justify-between px-4 lg:px-6 py-3">
-    <!-- Left: Logo + Menu -->
-    <div class="flex items-center gap-3">
-      <button id="menuToggle" class="lg:hidden p-2 rounded-lg hover:bg-slate-100">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
-      <img src="./SWACHIFY gif.gif" alt="Swachify" class="w-10 h-10 rounded-full" />
-      <h1 class="text-xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">Swachify</h1>
-    </div>
-
-    <!-- Middle: Search Bar -->
-    <div class="hidden md:flex items-center bg-slate-100 rounded-xl px-3 py-2 w-80 focus-within:ring-2 focus-within:ring-teal-400 transition ml-12">
-        <svg class="w-5 h-5 text-slate-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-          d="M21 21l-4.35-4.35M10 18a8 8 0 110-16 8 8 0 010 16z" />
-      </svg>
-      <input 
-        type="text" 
-        id="searchInput" 
-        placeholder="Search services, customers..." 
-        class="bg-transparent outline-none w-full text-sm text-slate-700 placeholder-slate-500"
-        oninput="handleSearch(event)"
-      />
-    </div>
-    <div class="relative w-48 ml-12 ">
-    <select
-      id="locationFilter"
-      onchange="renderEmployees()"
-      class="pl-10 pr-4 py-1.5 border-2 border-slate-200 rounded-lg text-sm text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all w-full"
-    >
-      <option value="all">All Locations</option>
-      <option value="Delhi">Delhi</option>
-      <option value="Mumbai">Mumbai</option>
-      <option value="Bangalore">Bangalore</option>
-      <option value="Hyderabad">Hyderabad</option>
-    </select>
-    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-      <!-- Red Google Maps Pin SVG -->
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24" stroke="none">
-        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
-      </svg>
-    </div>
-  </div>
-
-
-    <!-- Right: Notifications + Profile -->
-    <div class="flex items-center gap-3">
-      <!-- Search Icon (Mobile) -->
-      <button onclick="toggleMobileSearch()" class="md:hidden p-2 rounded-lg hover:bg-slate-100">
-        <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-            d="M21 21l-4.35-4.35M10 18a8 8 0 110-16 8 8 0 010 16z"/>
-        </svg>
-      </button>
-
-      <!-- Notifications -->
-      <button onclick="toggleNotifications()" class="relative p-2 rounded-full hover:bg-slate-100 transition">
-        <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-        </svg>
-        <span id="notifBadge" class="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center notification-dot">3</span>
-      </button>
-
-      <!-- Profile -->
-      <div class="flex items-center gap-2">
-        <div class="hidden sm:block text-right">
-          <div class="text-sm font-semibold" id="adminName">Admin User</div>
-          <div class="text-xs text-slate-500">Administrator</div>
-        </div>
-        <button onclick="showSection('profile')" class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold">
-          A
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Mobile Search (Hidden by Default) -->
-  <div id="mobileSearch" class="hidden px-4 pb-3 md:hidden">
-    <div class="flex items-center bg-slate-100 rounded-xl px-3 py-2 w-full focus-within:ring-2 focus-within:ring-teal-400 transition">
-      <svg class="w-5 h-5 text-slate-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-          d="M21 21l-4.35-4.35M10 18a8 8 0 110-16 8 8 0 010 16z" />
-      </svg>
-      <input 
-        type="text" 
-        placeholder="Search..." 
-        class="bg-transparent outline-none w-full text-sm text-slate-700 placeholder-slate-500"
-        oninput="handleSearch(event)"
-      />
-    </div>
-  </div>
-</header>
-
-<!-- Global Search Results -->
-<div id="globalSearchResults" class="hidden fixed top-16 left-0 right-0 bottom-0 bg-black/40 backdrop-blur-sm z-40 p-4 lg:left-64">
-    <div class="bg-white rounded-2xl w-full max-w-4xl mx-auto max-h-full overflow-y-auto p-6 shadow-2xl">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-slate-800">Search Results for "<span id="searchQueryDisplay"></span>"</h2>
-            <button onclick="closeGlobalSearch()" class="text-slate-500 hover:text-slate-800 text-2xl font-bold">&times;</button>
-        </div>
-        <div id="searchResultsContainer" class="space-y-6">
-            <!-- Results will be injected here -->
-            <p class="text-slate-500 text-center py-8">Start typing to see results...</p>
-        </div>
-    </div>
-</div>
-
-
-  <!-- Notification Dropdown -->
-  <div id="notificationPanel" class="hidden fixed top-16 right-4 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 max-h-96 overflow-y-auto">
-    <div class="p-4 border-b border-slate-200">
+<body class="min-h-screen bg-white text-slate-800">
+  
+  <!-- NAVIGATION -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex items-center justify-between">
-        <h3 class="font-bold text-slate-800">Notifications</h3>
-        <button onclick="clearAllNotifications()" class="text-xs text-teal-600 hover:text-teal-700">Clear All</button>
-      </div>
-    </div>
-    <div id="notificationList" class="divide-y divide-slate-100">
-      <!-- Notifications will be inserted here -->
-    </div>
-  </div>
-
-  <div class="flex pt-16 h-screen">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30">
-      <nav class="p-4 space-y-2">
-        <button onclick="showSection('dashboard')" class="sidebar-btn sidebar-active w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all" data-section="dashboard">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-          </svg>
-          <span class="font-semibold">Dashboard</span>
-        </button>
-
-        <button onclick="showSection('services')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 transition-all" data-section="services">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-          </svg>
-          <span class="font-semibold">Request Service</span>
-        </button>
-
-        <button onclick="showSection('bookings')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 transition-all" data-section="bookings">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
-          <span class="font-semibold">Bookings</span>
-          <span id="bookingBadge" class="ml-auto bg-teal-100 text-teal-600 text-xs px-2 py-1 rounded-full">0</span>
-        </button>
-
-        <button onclick="showSection('tickets')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 transition-all" data-section="tickets">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-          </svg>
-          <span class="font-semibold">Tickets</span>
-          <span id="ticketBadge" class="ml-auto bg-amber-100 text-amber-600 text-xs px-2 py-1 rounded-full">0</span>
-        </button>
-
-        <button onclick="showSection('employees')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 transition-all" data-section="employees">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
-          <span class="font-semibold">Employees</span>
-        </button>
-
-        <button onclick="showSection('profile')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 transition-all" data-section="profile">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-          </svg>
-          <span class="font-semibold">Profile</span>
-        </button>
-
-        <button onclick="showSection('settings')" class="sidebar-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 transition-all" data-section="settings">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-          <span class="font-semibold">Settings</span>
-        </button>
-
-        <div class="pt-4 border-t border-slate-200 mt-4">
-          <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-            <span class="font-semibold">Logout</span>
-          </button>
-        </div>
-      </nav>
-    </aside>
-
-    <!-- Sidebar Overlay for Mobile -->
-    <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black/50 z-20 lg:hidden" onclick="toggleSidebar()"></div>
-
-    <!-- Main Content -->
-    <main class="flex-1 p-4 lg:p-8 overflow-hidden h-[calc(100vh-4rem)]">
-      
-      <!-- Dashboard Section -->
-      <section id="dashboard" class="content-section fade-in flex flex-col h-full">
-        <div class="flex-shrink-0"> <!-- Header container -->
-            <h2 class="text-3xl font-bold mb-2">Welcome Back! 👋</h2>
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+          <img src="./SWACHIFY gif.gif" alt="Swachify Logo" class="w-12 h-12 object-contain" />
+          <div>
+            <span class="font-bold text-2xl bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">Swachify</span>
+            <p class="text-xs text-slate-600 hidden sm:block">Professional Cleaning Services</p>
+          </div>
         </div>
         
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 flex-shrink-0">
-          <div class="bg-gradient-to-br from-teal-500 to-cyan-500 text-white rounded-2xl p-6">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-teal-100">Total Services</span>
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <div class="text-3xl font-bold" id="totalServices">0</div>
-            <div class="text-xs text-teal-100 mt-1">All time</div>
-          </div>
+        <!-- Desktop Navigation -->
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium">
+          <a href="#services" class="hover:text-teal-600 transition-colors">Our Services</a>
+          <a href="#how-it-works" class="hover:text-teal-600 transition-colors">How It Works</a>
+          <a href="#pricing" class="hover:text-teal-600 transition-colors">Pricing</a>
+          <a href="#about" class="hover:text-teal-600 transition-colors">About Us</a>
+          <a href="#testimonials" class="hover:text-teal-600 transition-colors">Testimonials</a>
+          <a href="#contact" class="hover:text-teal-600 transition-colors">Contact</a>
+        </nav>
+        
+        <!-- CTA Button -->
+        <button id="openAuth" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all">
+          Book Now
+        </button>
 
-          <div class="bg-white rounded-2xl p-6 border-2 border-blue-200">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-slate-600">Active Bookings</span>
-              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <div class="text-3xl font-bold text-blue-600" id="activeBookings">0</div>
-            <div class="text-xs text-slate-500 mt-1">Pending assignment</div>
-          </div>
+        <!-- Mobile Menu Button -->
+        <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-lg hover:bg-slate-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
 
-          <div class="bg-white rounded-2xl p-6 border-2 border-emerald-200">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-slate-600">Open Tickets</span>
-              <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-              </svg>
-            </div>
-            <div class="text-3xl font-bold text-emerald-600" id="openTickets">0</div>
-            <div class="text-xs text-slate-500 mt-1">In progress</div>
-          </div>
+      <!-- Mobile Menu -->
+      <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 space-y-2">
+        <a href="#services" class="block px-4 py-2 rounded-lg hover:bg-slate-100">Our Services</a>
+        <a href="#how-it-works" class="block px-4 py-2 rounded-lg hover:bg-slate-100">How It Works</a>
+        <a href="#pricing" class="block px-4 py-2 rounded-lg hover:bg-slate-100">Pricing</a>
+        <a href="#about" class="block px-4 py-2 rounded-lg hover:bg-slate-100">About Us</a>
+        <a href="#testimonials" class="block px-4 py-2 rounded-lg hover:bg-slate-100">Testimonials</a>
+        <a href="#contact" class="block px-4 py-2 rounded-lg hover:bg-slate-100">Contact</a>
+      </div>
+    </div>
+  </header>
 
-          <div class="bg-white rounded-2xl p-6 border-2 border-purple-200">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-slate-600">Employees</span>
-              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-              </svg>
+  <!-- HERO SECTION -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-teal-50 via-cyan-50 to-white">
+    <!-- Animated background elements -->
+    <div class="blob w-96 h-96 bg-teal-400 top-20 -left-48"></div>
+    <div class="blob w-96 h-96 bg-cyan-400 bottom-20 -right-48" style="animation-delay: 3s;"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 md:pt-24 md:pb-20 relative">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <!-- Left Content -->
+        <div class="fade-in text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-100 border border-teal-200 text-teal-700 text-sm font-semibold mb-6">
+            <span class="sparkle">✨</span>
+            <span>Trusted by 5,000+ Happy Customers</span>
+          </div>
+          
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+            Sparkling Clean Homes, <span class="gradient-text">Delivered</span>
+          </h1>
+          
+          <p class="text-lg sm:text-xl text-slate-600 leading-relaxed mb-8">
+            Professional cleaning services at your doorstep. From deep cleaning to regular maintenance, we make your space shine like new.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
+            <button onclick="document.getElementById('openAuth').click();" class="px-8 py-4 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white text-base font-semibold hover:shadow-xl hover:scale-105 transition-all">
+              Book a Cleaning
+            </button>
+            <a href="#services" class="px-8 py-4 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-base font-semibold hover:border-teal-400 hover:shadow-lg transition-all text-center">
+              Our Services
+            </a>
+          </div>
+          
+          <!-- Trust Indicators -->
+          <div class="grid grid-cols-3 gap-6 pt-8 border-t border-slate-200">
+            <div class="text-center lg:text-left">
+              <div class="text-3xl font-bold text-teal-600">5,000+</div>
+              <div class="text-sm text-slate-600 mt-1">Happy Clients</div>
             </div>
-            <div class="text-3xl font-bold text-purple-600" id="totalEmployees">8</div>
-            <div class="text-xs text-slate-500 mt-1">Available staff</div>
+            <div class="text-center lg:text-left">
+              <div class="text-3xl font-bold text-teal-600">15K+</div>
+              <div class="text-sm text-slate-600 mt-1">Cleanings Done</div>
+            </div>
+            <div class="text-center lg:text-left">
+              <div class="text-3xl font-bold text-teal-600">4.9★</div>
+              <div class="text-sm text-slate-600 mt-1">Avg Rating</div>
+            </div>
           </div>
         </div>
-
-        <!-- Recent Activity -->
-<div class="grid lg:grid-cols-2 gap-6 flex-grow min-h-0">
-
-  <!-- Recent Bookings -->
-  <div class="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col" style="min-height:0;">
-    <h3 class="text-xl font-bold mb-4 flex-shrink-0">Recent Bookings</h3>
-
-    <!-- Scrollable list area -->
-    <div id="recentBookingsList"
-         class="space-y-3 overflow-y-auto custom-scrollbar flex-grow"
-         style="
-           max-height: 420px;
-           overflow-y: auto;
-           padding-right: 6px;
-           scroll-behavior: smooth;
-
-           /* Firefox scrollbar */
-           scrollbar-width: thin;
-           scrollbar-color: #cbd5e1 transparent;
-         ">
-      <div class="text-center py-8 text-slate-400">
-        <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-        </svg>
-        <p>No recent bookings</p>
+        
+        <!-- Right Visual -->
+        <div class="relative fade-in" style="animation-delay: 0.2s;">
+          <div class="relative aspect-square w-full max-w-lg mx-auto">
+            <!-- Main Image Placeholder -->
+            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-teal-100 to-cyan-100 p-8">
+              <div class="w-full h-full rounded-2xl bg-white shadow-2xl flex items-center justify-center overflow-hidden">
+                <img src="./service.jpg" alt="Swachify Cleaning" class="w-48 h-48 object-contain opacity-90" />
+              </div>
+            </div>
+            
+            <!-- Floating Cards -->
+            <div class="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl p-4 border-2 border-teal-200" style="animation: float 3s ease-in-out infinite;">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white text-xl">
+                  ✓
+                </div>
+                <div>
+                  <div class="font-bold text-sm">Quick Booking</div>
+                  <div class="text-xs text-slate-600">In 60 seconds</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl p-4 border-2 border-cyan-200" style="animation: float 3s ease-in-out infinite; animation-delay: 1.5s;">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center text-white text-xl">
+                  🧹
+                </div>
+                <div>
+                  <div class="font-bold text-sm">Eco-Friendly</div>
+                  <div class="text-xs text-slate-600">Safe products</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- Active Tickets -->
-  <div class="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col" style="min-height:0;">
-    <h3 class="text-xl font-bold mb-4 flex-shrink-0">Active Tickets</h3>
-
-    <!-- Scrollable list area -->
-    <div id="activeTicketsList"
-         class="space-y-3 overflow-y-auto custom-scrollbar flex-grow"
-         style="
-           max-height: 420px;
-           overflow-y: auto;
-           padding-right: 6px;
-           scroll-behavior: smooth;
-
-           /* Firefox scrollbar */
-           scrollbar-width: thin;
-           scrollbar-color: #cbd5e1 transparent;
-         ">
-      <div class="text-center py-8 text-slate-400">
-        <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-        </svg>
-        <p>No active tickets</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Inline style block only for WebKit scrollbar pseudo-elements and responsive heights -->
-<style>
-  /* WebKit scrollbar styling (cannot be in style="" attributes) */
-  #recentBookingsList::-webkit-scrollbar,
-  #activeTicketsList::-webkit-scrollbar { width: 10px; }
-  #recentBookingsList::-webkit-scrollbar-track,
-  #activeTicketsList::-webkit-scrollbar-track { background: transparent; }
-  #recentBookingsList::-webkit-scrollbar-thumb,
-  #activeTicketsList::-webkit-scrollbar-thumb {
-    background: #d1d5db; border-radius: 999px; border: 2px solid #fff;
-  }
-  #recentBookingsList:hover::-webkit-scrollbar-thumb,
-  #activeTicketsList:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
-
-  /* Responsive max-heights */
-  @media (max-width:1100px){
-    #recentBookingsList, #activeTicketsList { max-height: 360px; }
-  }
-  @media (max-width:640px){
-    #recentBookingsList, #activeTicketsList { max-height: 280px; }
-  }
-</style>
 
     
-        <!-- ✅ Fixed Help Button -->
+    <!-- ✅ Fixed Help Button -->
 <div id="chatButton" 
    class="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-full shadow-lg flex items-center gap-2 font-semibold transition-all cursor-pointer z-50">
   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="w-5 h-5" />
@@ -505,1112 +286,965 @@
     window.open(whatsappURL, '_blank');
   });
 </script>
-    
-      </section>
+  </section>
 
-      <!-- Services Section -->
-      <section id="services" class="content-section hidden h-full overflow-y-auto custom-scrollbar">
-        <main class="bg-white p-8 rounded-xl shadow-sm w-full">
-        
-        <div id="main-view" class="view active">
-            <header class="mb-8">
-                <h1 class="text-3xl font-bold text-slate-800">What are you looking for?</h1>
-                <p class="text-slate-500 mt-2">Select a service category to get started.</p>
-            </header>
-            <div id="services-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="group bg-slate-50 border-2 border-slate-200 rounded-xl overflow-hidden transition-all duration-300 cursor-pointer service-card-hover" onclick="navigateTo('sub-services-cleaning', 'Cleaning & Pest Control')">
-                    <img src="cleaning.jpg" alt="Cleaning Service" class="h-40 w-full object-cover">
-                    <div class="p-4"><h3 class="font-semibold text-slate-700">Cleaning & Pest Control</h3></div>
-                </div>
-                <div class="group bg-slate-50 border-2 border-slate-200 rounded-xl overflow-hidden transition-all duration-300 cursor-pointer service-card-hover" onclick="navigateTo('sub-services-electrician', 'Electrician, Plumber & Carpenter')">
-                    <img src="electrician.jpeg" alt="Plumber Service" class="h-40 w-full object-cover">
-                    <div class="p-4"><h3 class="font-semibold text-slate-700">Electrician, Plumber & Carpenter</h3></div>
-                </div>
-                <div class="group bg-slate-50 border-2 border-slate-200 rounded-xl overflow-hidden transition-all duration-300 cursor-pointer service-card-hover" onclick="navigateTo('sub-services-painting', 'Painting & Waterproofing')">
-                    <img src="painting.png" alt="Painting Service" class="h-40 w-full object-cover">
-                    <div class="p-4"><h3 class="font-semibold text-slate-700">Painting & Waterproofing</h3></div>
-                </div>
-                <div class="group bg-slate-50 border-2 border-slate-200 rounded-xl overflow-hidden transition-all duration-300 cursor-pointer service-card-hover" onclick="navigateTo('sub-services-ac', 'AC & Appliances')">
-                    <img src="ac-repair.jpg" alt="AC Repair Service" class="h-40 w-full object-cover">
-                    <div class="p-4"><h3 class="font-semibold text-slate-700">AC & Appliances</h3></div>
-                </div>
-            </div>
+  <!-- SERVICES SECTION -->
+  <section id="services" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Our Cleaning Services</h2>
+      <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+        Comprehensive cleaning solutions tailored to your needs. Choose from our wide range of professional services.
+      </p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Service 1 -->
+      <div class="service-card p-6 rounded-2xl border-2 border-slate-200 bg-white">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-3xl mb-4">
+          🏠
         </div>
-
-        <div id="sub-services-cleaning-view" class="view">
-            <header class="mb-8">
-                <button class="back-button mb-4" onclick="goBack()"><svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg> Back</button>
-                <h1 class="text-3xl font-bold text-slate-800" data-service-category="Cleaning & Pest Control">Cleaning & Pest Control</h1>
-                <p class="text-slate-500 mt-2">Please choose a sub-category.</p>
-            </header>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-bedroom', 'Bedroom Cleaning')"><img src="images1/cleaning&pest control/bedroom-cleaning.jpg" alt="Bedroom Cleaning" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Bedroom</h3></div></div>
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Bathroom Cleaning')"><img src="images1/cleaning&pest control/bathroom cleaning.jpeg" alt="Bathroom Cleaning" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Bathroom</h3></div></div>
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Kitchen Cleaning')"><img src="images1/cleaning&pest control/kitchen cleaning.jpg" alt="Kitchen Cleaning" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Kitchen</h3></div></div>
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Living Area Cleaning')"><img src="images1/cleaning&pest control/living area cleaning.jpg" alt="Living Area" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Living Area</h3></div></div>
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Sofa & Carpet Cleaning')"><img src="images1/cleaning&pest control/sofa cleaning.jpg" alt="Sofa & Carpet" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Sofa & Carpet</h3></div></div>
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Pest Control')"><img src="images1/cleaning&pest control/pest control.jpg" alt="Pest Control" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Pest Control</h3></div></div>
-            </div>
-        </div>
-        
-        <div id="sub-services-electrician-view" class="view">
-            <header class="mb-8">
-            <button class="back-button mb-4" onclick="goBack()"><svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg> Back</button>
-            <h1 class="text-3xl font-bold text-slate-800" data-service-category="Electrician, Plumber & Carpenter">Electrician, Plumber & Carpenter</h1>
-            <p class="text-slate-500 mt-2">Please choose a sub-category.</p>
-        </header>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Switch & Sockets')"><img src="images1/electrician/socket.jpg" alt="Switch & Sockets" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Switch & Sockets</h3></div></div>
-            <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Fan Repair')"><img src="images1/electrician/fan.jpg" alt="Fan" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Fan</h3></div></div>
-            <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Wiring')"><img src="images1/electrician/wiring.jpg" alt="Wiring" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Wiring</h3></div></div>
-            <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Bath Fitting')"><img src="images1/electrician/bath.jpg" alt="Bath Fitting" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Bath Fitting</h3></div></div>
-            <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Sink & Basin Repair')"><img src="images1/electrician/sink.jpg" alt="Sink & Basin" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Sink & Basin</h3></div></div>
-            <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Carpenter')"><img src="images1/electrician/carpenter.jpg" alt="Carpenter" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Carpenter</h3></div></div>
-        </div>
-        </div>
-
-        <div id="sub-services-painting-view" class="view">
-                <header class="mb-8">
-                <button class="back-button mb-4" onclick="goBack()"><svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg> Back</button>
-                <h1 class="text-3xl font-bold text-slate-800" data-service-category="Painting & Waterproofing">Painting & Waterproofing</h1>
-                <p class="text-slate-500 mt-2">Please choose a sub-category.</p>
-            </header>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Full House Painting')"><img src="images1/painting/house.jpeg" alt="Full House Painting" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Full House Painting</h3></div></div>
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Room Painting')"><img src="images1/painting/room.png" alt="Room Painting" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Room Painting</h3></div></div>
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Exterior Painting')"><img src="images1/painting/exterior.png" alt="Exterior" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Exterior Painting</h3></div></div>
-                <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Waterproofing')"><img src="images1/painting/waterproof.webp" alt="Waterproofing" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Waterproofing</h3></div></div>
-                </div>
-        </div>
-
-        <div id="sub-services-ac-view" class="view">
-                <header class="mb-8">
-                <button class="back-button mb-4" onclick="goBack()"><svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg> Back</button>
-                <h1 class="text-3xl font-bold text-slate-800" data-service-category="AC & Appliances">AC & Appliances</h1>
-                <p class="text-slate-500 mt-2">Please choose a sub-category.</p>
-            </header>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'AC Service & Repair')"><img src="images1/AC/ac repair.jpg" alt="AC Repair" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">AC Service & Repair</h3></div></div>
-                    <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Refrigerator Repair')"><img src="images1/AC/fridge.jpg" alt="Refrigerator" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Refrigerator Repair</h3></div></div>
-                    <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Washing Machine Repair')"><img src="images1/AC/washin.jpeg" alt="Washing Machine" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Washing Machine Repair</h3></div></div>
-                    <div class="group cursor-pointer service-card-hover border-2 rounded-xl" onclick="navigateTo('pricing-generic', 'Microwave Repair')"><img src="images1/AC/oven.jpg" alt="Microwave" class="h-28 w-full object-cover rounded-t-xl"><div class="p-3 text-center"><h3 class="font-semibold text-slate-700 text-sm">Microwave Repair</h3></div></div>
-            </div>
-        </div>
-
-        <div id="pricing-bedroom-view" class="view" data-sub-service="Bedroom Cleaning">
-                <header class="mb-8">
-                <button class="back-button mb-4" onclick="goBack()"><svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg> Back</button>
-                <h1 class="text-3xl font-bold text-slate-800">Bedroom Cleaning Services</h1>
-                <p class="text-slate-500 mt-2">Select a plan to continue.</p>
-            </header>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="border border-slate-200 rounded-xl p-6 flex flex-col service-card-hover">
-                    <h3 class="text-xl font-bold text-slate-800">Regular</h3>
-                    <p class="text-3xl font-bold my-4">$49<span class="text-base font-medium text-slate-500">/room</span></p>
-                    <ul class="space-y-2 text-slate-600 mb-6"><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Mopped & Vacuumed</li><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Surfaces Dusted</li></ul>
-                    <button class="mt-auto w-full bg-teal-600 text-white font-semibold py-2 rounded-lg hover:bg-teal-700 transition-colors" onclick="navigateTo('booking-form', 'Regular')">Book Now</button>
-                </div>
-                <div class="border-2 border-teal-600 rounded-xl p-6 flex flex-col relative service-card-hover">
-                    <div class="absolute top-0 -translate-y-1/2 bg-teal-600 text-white px-3 py-1 text-sm font-semibold rounded-full">Popular</div>
-                    <h3 class="text-xl font-bold text-slate-800">Premium</h3>
-                    <p class="text-3xl font-bold my-4">$79<span class="text-base font-medium text-slate-500">/room</span></p>
-                    <ul class="space-y-2 text-slate-600 mb-6"><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Everything in Regular</li><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Mirrors Polished</li></ul>
-                    <button class="mt-auto w-full bg-teal-600 text-white font-semibold py-2 rounded-lg hover:bg-teal-700 transition-colors" onclick="navigateTo('booking-form', 'Premium')">Book Now</button>
-                </div>
-                <div class="border border-slate-200 rounded-xl p-6 flex flex-col service-card-hover">
-                    <h3 class="text-xl font-bold text-slate-800">Ultimate</h3>
-                    <p class="text-3xl font-bold my-4">$109<span class="text-base font-medium text-slate-500">/room</span></p>
-                        <ul class="space-y-2 text-slate-600 mb-6"><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Everything in Premium</li><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Linens Changed</li></ul>
-                    <button class="mt-auto w-full bg-teal-600 text-white font-semibold py-2 rounded-lg hover:bg-teal-700 transition-colors" onclick="navigateTo('booking-form', 'Ultimate')">Book Now</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="pricing-generic-view" class="view">
-                <header class="mb-8">
-                <button class="back-button mb-4" onclick="goBack()"><svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg> Back</button>
-                <h1 class="text-3xl font-bold text-slate-800">Our Service Plans</h1>
-            </header>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="border border-slate-200 rounded-xl p-6 flex flex-col service-card-hover">
-                    <h3 class="text-xl font-bold text-slate-800">Standard</h3>
-                    <p class="text-3xl font-bold my-4">$89<span class="text-base font-medium text-slate-500">/visit</span></p>
-                    <ul class="space-y-2 text-slate-600 mb-6"><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Basic Service</li><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Inspection</li></ul>
-                    <button class="mt-auto w-full bg-teal-600 text-white font-semibold py-2 rounded-lg hover:bg-teal-700 transition-colors" onclick="navigateTo('booking-form', 'Standard')">Book Now</button>
-                </div>
-                <div class="border-2 border-teal-600 rounded-xl p-6 flex flex-col relative service-card-hover">
-                    <div class="absolute top-0 -translate-y-1/2 bg-teal-600 text-white px-3 py-1 text-sm font-semibold rounded-full">Popular</div>
-                    <h3 class="text-xl font-bold text-slate-800">Advanced</h3>
-                    <p class="text-3xl font-bold my-4">$129<span class="text-base font-medium text-slate-500">/visit</span></p>
-                    <ul class="space-y-2 text-slate-600 mb-6"><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Everything in Standard</li><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Detailed Cleaning</li></ul>
-                    <button class="mt-auto w-full bg-teal-600 text-white font-semibold py-2 rounded-lg hover:bg-teal-700 transition-colors" onclick="navigateTo('booking-form', 'Advanced')">Book Now</button>
-                </div>
-                <div class="border border-slate-200 rounded-xl p-6 flex flex-col service-card-hover">
-                    <h3 class="text-xl font-bold text-slate-800">Complete</h3>
-                    <p class="text-3xl font-bold my-4">$199<span class="text-base font-medium text-slate-500">/visit</span></p>
-                        <ul class="space-y-2 text-slate-600 mb-6"><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Everything in Advanced</li><li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Parts Replacement</li></ul>
-                    <button class="mt-auto w-full bg-teal-600 text-white font-semibold py-2 rounded-lg hover:bg-teal-700 transition-colors" onclick="navigateTo('booking-form', 'Complete')">Book Now</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="booking-form-view" class="view">
-            <header class="mb-8">
-            <button class="back-button mb-4" onclick="goBack()"><svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg> Back</button>
-            <h1 class="text-3xl font-bold text-slate-800">Book Your Service</h1>
-            <input type="hidden" id="selected-service-group" value="">
-            <input type="hidden" id="selected-sub-service" value="">
-            <input type="hidden" id="selected-service-plan" value="">
-        </header>
-        <div class="grid lg:grid-cols-2 gap-12">
-            <form id="booking-form" class="space-y-6">
-                <div><label for="name" class="block text-sm font-medium text-slate-700">Full Name</label><input type="text" id="name" required class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500"></div>
-                               <div><label for="name" class="block text-sm font-medium text-slate-700">Full Name</label><input type="text" id="name" required class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500"></div>
-
-                <div><label for="phone" class="block text-sm font-medium text-slate-700">Phone Number</label><input type="tel" id="phone" required class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500"></div>
-                <div><label for="address" class="block text-sm font-medium text-slate-700">Address</label><textarea id="address" rows="3" required class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500"></textarea></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="date" class="block text-sm font-medium text-slate-700">Preferred Date</label>
-                        <input type="date" id="date" required class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500">
-                    </div>
-                    <div>
-                        <label for="time-slots" class="block text-sm font-medium text-slate-700">Preferred Time Slot</label>
-                        <div id="time-slots" class="grid grid-cols-2 gap-2 mt-1">
-                            <button type="button" class="time-slot-btn bg-slate-100 text-slate-700 text-sm py-2 rounded-md transition-colors" data-time="9:00 AM - 11:00 AM">9am - 11am</button>
-                            <button type="button" class="time-slot-btn bg-slate-100 text-slate-700 text-sm py-2 rounded-md transition-colors" data-time="11:00 AM - 1:00 PM">11am - 1pm</button>
-                            <button type="button" class="time-slot-btn bg-slate-100 text-slate-700 text-sm py-2 rounded-md transition-colors" data-time="1:00 PM - 3:00 PM">1pm - 3pm</button>
-                            <button type="button" class="time-slot-btn bg-slate-100 text-slate-700 text-sm py-2 rounded-md transition-colors" data-time="3:00 PM - 5:00 PM">3pm - 5pm</button>
-                        </div>
-                        <input type="hidden" id="time" required>
-                    </div>
-                </div>
-                <button type="submit" class="w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-teal-700 transition-colors">Place Order</button>
-            </form>
-            <div class="hidden lg:block bg-gradient-to-br from-teal-50 to-cyan-100 rounded-2xl p-8 flex flex-col justify-center items-center text-center">
-                <img src="./SWACHIFY gif.gif" alt="Swachify" class="w-24 h-24 mb-4" />
-                <h3 class="text-xl font-bold text-teal-800 mb-2">You're almost there!</h3>
-                <p class="text-slate-600">Complete the form to get a sparkling clean space. We guarantee you'll be satisfied with our professional service.</p>
-            </div>
-        </div>
-        </div>
-        <div id="acknowledgement-view" class="view text-center">
-            <div class="flex justify-center mb-6"><div class="checkmark-circle"><svg class="checkmark" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></div></div>
-            <h1 class="text-3xl font-bold text-slate-800">Order Placed Successfully!</h1>
-            <p class="text-slate-500 mt-4 max-w-md mx-auto">Thank you for your order. Our team will contact you shortly to confirm the details of your appointment.</p>
-            <button class="mt-8 bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-teal-700 transition-colors" onclick="navigateTo('main')">Back to Home</button>
-        </div>
-    </main>
-      </section>
-
-
-      <!-- Bookings Section -->
-      <section id="bookings" class="content-section hidden fade-in flex flex-col h-full">
-        <div class="flex-shrink-0">
-            <h2 class="text-3xl font-bold mb-2">Bookings Management</h2>
-            <p class="text-slate-600 mb-8">Assign employees to service requests</p>
-        </div>
-        <div id="bookingsList" class="space-y-4 flex-grow overflow-y-auto custom-scrollbar pr-2">
-          <div class="text-center py-12 text-slate-400">
-            <svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <p>No pending bookings</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Tickets Section -->
-      <section id="tickets" class="content-section hidden fade-in flex flex-col h-full">
-        <div class="flex-shrink-0">
-            <h2 class="text-3xl font-bold mb-2">Service Tickets</h2>
-            <p class="text-slate-600 mb-8">Monitor and manage work assignments</p>
-
-            <div class="mb-6 flex gap-3">
-            <button onclick="filterTickets('all')" class="ticket-filter-btn px-4 py-2 rounded-lg bg-teal-600 text-white font-medium">All</button>
-            <button onclick="filterTickets('open')" class="ticket-filter-btn px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-medium">Open</button>
-            <button onclick="filterTickets('in-progress')" class="ticket-filter-btn px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-medium">In Progress</button>
-            <button onclick="filterTickets('completed')" class="ticket-filter-btn px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-medium">Completed</button>
-            </div>
-        </div>
-        <div id="ticketsList" class="space-y-4 flex-grow overflow-y-auto custom-scrollbar pr-2">
-          <div class="text-center py-12 text-slate-400">
-            <svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-            </svg>
-            <p>No tickets found</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Employees Section -->
-        <section id="employees" class="content-section hidden fade-in flex flex-col h-full">
-            <div class="flex-shrink-0">
-                <h2 class="text-3xl font-bold mb-2">Employee Management</h2>
-                <p class="text-slate-600 mb-8">View and manage your cleaning staff</p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-6 flex-grow min-h-0">
-                <div id="employeeListContainer" class="md:col-span-1 bg-white rounded-xl border border-slate-200 p-4 overflow-y-auto custom-scrollbar">
-                    <!-- Employee names will be injected here -->
-                </div>
-                <div id="employeeDetailsContainer" class="md:col-span-2 bg-white rounded-xl border border-slate-200 p-6">
-                    <div class="text-center text-slate-500 h-full flex flex-col justify-center">
-                        <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm-3 7a4 4 0 110-8 4 4 0 010 8z"/></svg>
-                        <p>Select an employee to view their details.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-      <!-- Profile Section -->
-      <section id="profile" class="content-section hidden fade-in h-full overflow-y-auto custom-scrollbar">
-        <h2 class="text-3xl font-bold mb-2">Profile Settings</h2>
-        <p class="text-slate-600 mb-8">Manage your account information</p>
-
-        <div class="max-w-2xl">
-          <div class="bg-white rounded-2xl p-6 border border-slate-200 mb-6">
-            <div class="flex items-center gap-4 mb-6">
-              <div class="w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white text-3xl font-bold">
-                A
-              </div>
-              <div>
-                <h3 class="text-xl font-bold">Admin User</h3>
-                <p class="text-slate-600">admin@swachify.com</p>
-              </div>
-            </div>
-
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
-                <input type="text" value="Admin User" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                <input type="email" value="admin@swachify.com" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Phone</label>
-                <input type="tel" value="+91 98765 43210" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none">
-              </div>
-              <button class="w-full bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Settings Section -->
-      <section id="settings" class="content-section hidden fade-in h-full overflow-y-auto custom-scrollbar">
-        <h2 class="text-3xl font-bold mb-2">Settings</h2>
-        <p class="text-slate-600 mb-8">Configure your system preferences</p>
-
-        <div class="max-w-2xl space-y-6">
-          <div class="bg-white rounded-2xl p-6 border border-slate-200">
-            <h3 class="font-bold text-lg mb-4">Notification Settings</h3>
-            <div class="space-y-4">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="font-medium">New Booking Alerts</p>
-                  <p class="text-sm text-slate-600">Get notified when new bookings arrive</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" checked class="sr-only peer">
-                  <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
-                </label>
-              </div>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="font-medium">Ticket Updates</p>
-                  <p class="text-sm text-slate-600">Notifications for ticket status changes</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" checked class="sr-only peer">
-                  <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl p-6 border border-slate-200">
-            <h3 class="font-bold text-lg mb-4">Business Settings</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Business Name</label>
-                <input type="text" value="Swachify Cleaning Services" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Support Email</label>
-                <input type="email" value="support@swachify.com" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none">
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </main>
-  </div>
-  
-  <!-- Employee Assignment Modal -->
-  <div id="employeeModal" class="hidden fixed inset-0 bg-black/50 modal flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 max-h-[80vh] overflow-y-auto fade-in">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-bold">Assign Employee</h3>
-        <button onclick="closeEmployeeModal()" class="text-slate-400 hover:text-slate-600">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
+        <h3 class="text-xl font-bold mb-3">Home Deep Cleaning</h3>
+        <p class="text-slate-600 mb-4">
+          Thorough cleaning of every corner of your home. Kitchen, bathrooms, living areas, and bedrooms - all spotless.
+        </p>
+        <ul class="space-y-2 mb-4 text-sm">
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Kitchen & appliances</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Bathroom sanitization</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Floor & carpet cleaning</span>
+          </li>
+        </ul>
+        <button onclick="document.getElementById('openAuth').click();" class="text-teal-600 font-semibold hover:text-teal-700 text-sm">
+          Book Now →
         </button>
       </div>
 
-      <input type="hidden" id="selectedBookingId">
-      
-      <div class="mb-4 p-4 bg-slate-50 rounded-xl">
-        <p class="text-sm text-slate-600">Booking Details:</p>
-        <p id="bookingDetailsDisplay" class="font-semibold text-slate-800"></p>
+      <!-- Service 2 -->
+      <div class="service-card p-6 rounded-2xl border-2 border-slate-200 bg-white">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-3xl mb-4">
+          🏢
+        </div>
+        <h3 class="text-xl font-bold mb-3">Office Cleaning</h3>
+        <p class="text-slate-600 mb-4">
+          Professional workspace cleaning for a productive environment. Daily, weekly, or monthly service available.
+        </p>
+        <ul class="space-y-2 mb-4 text-sm">
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Desk & workstation cleaning</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Common area maintenance</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Restroom sanitization</span>
+          </li>
+        </ul>
+        <button onclick="document.getElementById('openAuth').click();" class="text-teal-600 font-semibold hover:text-teal-700 text-sm">
+          Book Now →
+        </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="employeeSelectionList">
-        <!-- Employee cards will be inserted here -->
+      <!-- Service 3 -->
+      <div class="service-card p-6 rounded-2xl border-2 border-slate-200 bg-white">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl mb-4">
+          🪟
+        </div>
+        <h3 class="text-xl font-bold mb-3">Window Cleaning</h3>
+        <p class="text-slate-600 mb-4">
+          Crystal clear windows inside and out. Professional equipment for streak-free shine every time.
+        </p>
+        <ul class="space-y-2 mb-4 text-sm">
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Interior & exterior glass</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Frame & sill cleaning</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>High-rise specialists</span>
+          </li>
+        </ul>
+        <button onclick="document.getElementById('openAuth').click();" class="text-teal-600 font-semibold hover:text-teal-700 text-sm">
+          Book Now →
+        </button>
+      </div>
+
+      <!-- Service 4 -->
+      <div class="service-card p-6 rounded-2xl border-2 border-slate-200 bg-white">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-3xl mb-4">
+          🛋️
+        </div>
+        <h3 class="text-xl font-bold mb-3">Sofa & Carpet Cleaning</h3>
+        <p class="text-slate-600 mb-4">
+          Deep cleaning for upholstery and carpets. Remove stains, odors, and allergens with our specialized treatment.
+        </p>
+        <ul class="space-y-2 mb-4 text-sm">
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Steam cleaning</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Stain removal</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Fabric protection</span>
+          </li>
+        </ul>
+        <button onclick="document.getElementById('openAuth').click();" class="text-teal-600 font-semibold hover:text-teal-700 text-sm">
+          Book Now →
+        </button>
+      </div>
+
+      <!-- Service 5 -->
+      <div class="service-card p-6 rounded-2xl border-2 border-slate-200 bg-white">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-3xl mb-4">
+          🏡
+        </div>
+        <h3 class="text-xl font-bold mb-3">Move In/Out Cleaning</h3>
+        <p class="text-slate-600 mb-4">
+          Complete cleaning for moving homes. Leave your old place spotless or move into a fresh, clean new home.
+        </p>
+        <ul class="space-y-2 mb-4 text-sm">
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Complete house cleaning</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Cabinet & closet cleaning</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Same-day service available</span>
+          </li>
+        </ul>
+        <button onclick="document.getElementById('openAuth').click();" class="text-teal-600 font-semibold hover:text-teal-700 text-sm">
+          Book Now →
+        </button>
+      </div>
+
+      <!-- Service 6 -->
+      <div class="service-card p-6 rounded-2xl border-2 border-slate-200 bg-white">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-3xl mb-4">
+          ✨
+        </div>
+        <h3 class="text-xl font-bold mb-3">Post-Construction Cleaning</h3>
+        <p class="text-slate-600 mb-4">
+          Specialized cleaning after renovation or construction. Remove dust, debris, and make it move-in ready.
+        </p>
+        <ul class="space-y-2 mb-4 text-sm">
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Dust & debris removal</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Surface polishing</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-teal-600">✓</span>
+            <span>Final touch cleaning</span>
+          </li>
+        </ul>
+        <button onclick="document.getElementById('openAuth').click();" class="text-teal-600 font-semibold hover:text-teal-700 text-sm">
+          Book Now →
+        </button>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- OTP Verification Modal -->
-  <div id="otpModal" class="hidden fixed inset-0 bg-black/50 modal flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 fade-in shadow-lg">
-      <div class="flex items-center justify-between mb-4">
-        <h3 id="otpModalTitle" class="text-xl font-bold">Verify OTP</h3>
-        <button onclick="closeOtpModal()" class="text-slate-400 hover:text-slate-600">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works" class="bg-gradient-to-br from-slate-50 to-teal-50 py-16 md:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">How Swachify Works</h2>
+        <p class="text-lg text-slate-600">Book your cleaning service in just 3 simple steps</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+        <div class="text-center">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-teal-600 to-cyan-600 text-white flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg">
+            1
+          </div>
+          <h3 class="text-xl font-bold mb-3">Choose Your Service</h3>
+          <p class="text-slate-600">
+            Select from our range of cleaning services. Pick the date and time that works best for you.
+          </p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-teal-600 to-cyan-600 text-white flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg">
+            2
+          </div>
+          <h3 class="text-xl font-bold mb-3">We Send Our Team</h3>
+          <p class="text-slate-600">
+            Our verified, trained professionals arrive on time with all necessary equipment and eco-friendly supplies.
+          </p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-teal-600 to-cyan-600 text-white flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg">
+            3
+          </div>
+          <h3 class="text-xl font-bold mb-3">Enjoy Your Clean Space</h3>
+          <p class="text-slate-600">
+            Relax while we work our magic. Pay securely online and enjoy your sparkling clean home or office!
+          </p>
+        </div>
+      </div>
+
+      <!-- Additional Features -->
+      <div class="mt-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl p-6 text-center border-2 border-teal-100">
+          <div class="text-3xl mb-3">🔒</div>
+          <h4 class="font-bold mb-2">Verified Professionals</h4>
+          <p class="text-sm text-slate-600">Background-checked cleaning experts</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 text-center border-2 border-teal-100">
+          <div class="text-3xl mb-3">🌿</div>
+          <h4 class="font-bold mb-2">Eco-Friendly Products</h4>
+          <p class="text-sm text-slate-600">Safe for family, pets, and planet</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 text-center border-2 border-teal-100">
+          <div class="text-3xl mb-3">💳</div>
+          <h4 class="font-bold mb-2">Secure Payment</h4>
+          <p class="text-sm text-slate-600">Multiple payment options available</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 text-center border-2 border-teal-100">
+          <div class="text-3xl mb-3">⭐</div>
+          <h4 class="font-bold mb-2">Quality Guarantee</h4>
+          <p class="text-sm text-slate-600">100% satisfaction or money back</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Transparent Pricing</h2>
+      <p class="text-lg text-slate-600">No hidden charges. Pay only for what you need.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- Basic Plan -->
+      <div class="p-8 rounded-2xl border-2 border-slate-200 bg-white hover:shadow-xl transition-all">
+        <div class="text-sm font-semibold text-teal-600 mb-2">BASIC CLEANING</div>
+        <div class="text-4xl font-bold mb-2">₹499<span class="text-lg text-slate-600">/visit</span></div>
+        <div class="text-slate-600 mb-6">Perfect for regular maintenance</div>
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Dusting & vacuuming</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Mopping all floors</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Kitchen counters cleaning</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Bathroom basic cleaning</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Up to 1000 sq ft</span>
+          </li>
+        </ul>
+        <button onclick="document.getElementById('openAuth').click();" class="w-full py-3 rounded-xl border-2 border-slate-300 font-semibold hover:border-teal-400 hover:bg-slate-50 transition-all">
+          Book Now
         </button>
       </div>
 
-      <form id="otpForm" onsubmit="verifyOTP(event)">
-        <input type="hidden" id="otpTicketId">
-        <input type="hidden" id="otpType">
+      <!-- Standard Plan -->
+      <div class="p-8 rounded-2xl border-2 border-teal-600 bg-gradient-to-br from-teal-50 to-cyan-50 relative hover:shadow-xl transition-all">
+        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-teal-600 to-cyan-600 text-white text-xs font-bold">
+          MOST POPULAR
+        </div>
+        <div class="text-sm font-semibold text-teal-600 mb-2">DEEP CLEANING</div>
+        <div class="text-4xl font-bold mb-2">₹999<span class="text-lg text-slate-600">/visit</span></div>
+        <div class="text-slate-600 mb-6">Comprehensive cleaning solution</div>
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Everything in Basic</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Deep kitchen cleaning</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Bathroom sanitization</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Window & glass cleaning</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Up to 2000 sq ft</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Appliance cleaning</span>
+          </li>
+        </ul>
+        <button onclick="document.getElementById('openAuth').click();" class="w-full py-3 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold hover:shadow-lg transition-all">
+          Book Now
+        </button>
+      </div>
+
+      <!-- Premium Plan -->
+      <div class="p-8 rounded-2xl border-2 border-slate-200 bg-white hover:shadow-xl transition-all">
+        <div class="text-sm font-semibold text-teal-600 mb-2">PREMIUM PACKAGE</div>
+        <div class="text-4xl font-bold mb-2">₹1,999<span class="text-lg text-slate-600">/visit</span></div>
+        <div class="text-slate-600 mb-6">Ultimate cleaning experience</div>
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Everything in Deep</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Sofa & carpet cleaning</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Balcony & terrace cleaning</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Unlimited square footage</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">Priority scheduling</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-teal-500 mt-1">✓</span>
+            <span class="text-sm">24/7 support</span>
+          </li>
+        </ul>
+        <button onclick="document.getElementById('openAuth').click();" class="w-full py-3 rounded-xl border-2 border-slate-300 font-semibold hover:border-teal-400 hover:bg-slate-50 transition-all">
+          Book Now
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-12 text-center">
+      <p class="text-slate-600 mb-4">Need a custom quote for commercial spaces?</p>
+      <a href="#contact" class="text-teal-600 font-semibold hover:text-teal-700">Contact us for enterprise pricing →</a>
+    </div>
+  </section>
+
+  <!-- ABOUT US -->
+  <section id="about" class="bg-gradient-to-br from-teal-600 to-cyan-600 text-white py-16 md:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-3xl md:text-4xl font-bold mb-6">About Swachify</h2>
+          <p class="text-teal-50 text-lg mb-6">
+            Founded in 2020, Swachify has been transforming homes and offices across the city with our professional cleaning services. We believe everyone deserves a clean, healthy living space.
+          </p>
+          <p class="text-teal-50 mb-6">
+            Our team of trained professionals uses eco-friendly products and modern equipment to deliver exceptional results. We're not just cleaning - we're creating healthier, happier spaces for our customers.
+          </p>
+          
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div>
+              <div class="text-3xl font-bold mb-1">5 Years</div>
+              <div class="text-teal-100 text-sm">In Business</div>
+            </div>
+            <div>
+              <div class="text-3xl font-bold mb-1">100+</div>
+              <div class="text-teal-100 text-sm">Cleaning Experts</div>
+            </div>
+            <div>
+              <div class="text-3xl font-bold mb-1">15K+</div>
+              <div class="text-teal-100 text-sm">Services Completed</div>
+            </div>
+            <div>
+              <div class="text-3xl font-bold mb-1">98%</div>
+              <div class="text-teal-100 text-sm">Customer Satisfaction</div>
+            </div>
+          </div>
+
+          <button onclick="document.getElementById('openAuth').click();" class="px-8 py-3 rounded-xl bg-white text-teal-600 font-semibold hover:shadow-xl hover:scale-105 transition-all">
+            Join Our Happy Customers
+          </button>
+        </div>
         
-        <p class="text-sm text-slate-600 mb-2">Enter the 4-digit OTP provided by the customer to proceed.</p>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-4">
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div class="text-3xl mb-3">🏆</div>
+              <h4 class="font-bold mb-2">Award Winning</h4>
+              <p class="text-sm text-teal-50">Best Cleaning Service 2023</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div class="text-3xl mb-3">⚡</div>
+              <h4 class="font-bold mb-2">Same Day Service</h4>
+              <p class="text-sm text-teal-50">Quick response time</p>
+            </div>
+          </div>
+          <div class="space-y-4 mt-8">
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div class="text-3xl mb-3">🌟</div>
+              <h4 class="font-bold mb-2">Trained Staff</h4>
+              <p class="text-sm text-teal-50">Certified professionals</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div class="text-3xl mb-3">💯</div>
+              <h4 class="font-bold mb-2">Money Back</h4>
+              <p class="text-sm text-teal-50">100% guarantee</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <input 
-          type="tel" 
-          id="otpInput"
-          maxlength="4"
-          required
-          class="w-full text-center text-3xl tracking-[1em] font-bold py-3 border-2 border-slate-300 rounded-xl focus:border-teal-500 focus:outline-none transition-colors"
-          placeholder="----"
-        >
-        <div id="otpError" class="text-red-500 text-sm mt-2 text-center h-4"></div>
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">What Our Customers Say</h2>
+      <p class="text-lg text-slate-600">Real reviews from real customers</p>
+    </div>
 
-        <button type="submit" class="w-full mt-4 bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-3 rounded-lg font-semibold hover:shadow-md transition-all">
-          Verify & Proceed
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="p-6 rounded-2xl border-2 border-slate-200 bg-white hover:shadow-lg transition-all">
+        <div class="flex items-center gap-1 mb-4 text-amber-400">
+          ★★★★★
+        </div>
+        <p class="text-slate-600 mb-4">
+          "Absolutely fantastic service! The team was professional, punctual, and my house has never been cleaner. Will definitely book again!"
+        </p>
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center text-white font-bold">
+            P
+          </div>
+          <div>
+            <div class="font-semibold">Priya Sharma</div>
+            <div class="text-sm text-slate-500">Homemaker, Mumbai</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 rounded-2xl border-2 border-slate-200 bg-white hover:shadow-lg transition-all">
+        <div class="flex items-center gap-1 mb-4 text-amber-400">
+          ★★★★★
+        </div>
+        <p class="text-slate-600 mb-4">
+          "We use Swachify for our office cleaning weekly. They're reliable, thorough, and use eco-friendly products. Highly recommend!"
+        </p>
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold">
+            R
+          </div>
+          <div>
+            <div class="font-semibold">Rahul Verma</div>
+            <div class="text-sm text-slate-500">Business Owner, Delhi</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 rounded-2xl border-2 border-slate-200 bg-white hover:shadow-lg transition-all">
+        <div class="flex items-center gap-1 mb-4 text-amber-400">
+          ★★★★★
+        </div>
+        <p class="text-slate-600 mb-4">
+          "Best cleaning service in the city! They did an amazing job with my post-renovation cleaning. Everything sparkles now!"
+        </p>
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center text-white font-bold">
+            A
+          </div>
+          <div>
+            <div class="font-semibold">Anjali Patel</div>
+            <div class="text-sm text-slate-500">Engineer, Bangalore</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Badges -->
+    <div class="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-60">
+      <div class="text-center">
+        <div class="font-bold text-2xl text-slate-700">Google</div>
+        <div class="text-amber-400 text-lg">★★★★★ 4.9</div>
+      </div>
+      <div class="text-center">
+        <div class="font-bold text-2xl text-slate-700">Facebook</div>
+        <div class="text-amber-400 text-lg">★★★★★ 4.8</div>
+      </div>
+      <div class="text-center">
+        <div class="font-bold text-2xl text-slate-700">Trustpilot</div>
+        <div class="text-amber-400 text-lg">★★★★★ 4.9</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT/CTA -->
+  <section id="contact" class="bg-gradient-to-br from-slate-900 to-teal-900 text-white py-16 md:py-24">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-6">
+        Ready for a Sparkling Clean Space?
+      </h2>
+      <p class="text-lg text-slate-300 mb-8">
+        Book your cleaning service today and experience the Swachify difference. Professional, reliable, and eco-friendly.
+      </p>
+      
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+        <button onclick="document.getElementById('openAuth').click();" class="px-8 py-4 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold hover:shadow-xl hover:scale-105 transition-all">
+          Book a Cleaning Now
+        </button>
+        <a href="tel:+919876543210" class="px-8 py-4 rounded-xl border-2 border-white text-white font-semibold hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+          <span>📞</span>
+          <span>Call +91 98765 43210</span>
+        </a>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-slate-700">
+        <div>
+          <div class="text-2xl font-bold mb-1">24/7</div>
+          <div class="text-sm text-slate-400">Customer Support</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold mb-1">Same Day</div>
+          <div class="text-sm text-slate-400">Service Available</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold mb-1">100%</div>
+          <div class="text-sm text-slate-400">Satisfaction Guaranteed</div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="mt-12 space-y-3 text-slate-300">
+        <p>📧 Email: <a href="mailto:support@swachify.com" class="text-teal-400 hover:underline">support@swachify.com</a></p>
+        <p>📍 Address: 123 Clean Street, Green City, India - 400001</p>
+        <p>🕐 Working Hours: Mon-Sat: 8AM-8PM, Sun: 9AM-6PM</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <img src="./SWACHIFY gif.gif" alt="Swachify" class="w-8 h-8" />
+            <span class="font-bold text-white">Swachify</span>
+          </div>
+          <p class="text-sm text-slate-400">
+            Professional cleaning services for homes and offices.
+          </p>
+        </div>
+        
+        <div>
+          <h4 class="font-semibold text-white mb-3">Services</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#services" class="hover:text-white">Home Cleaning</a></li>
+            <li><a href="#services" class="hover:text-white">Office Cleaning</a></li>
+            <li><a href="#services" class="hover:text-white">Deep Cleaning</a></li>
+            <li><a href="#services" class="hover:text-white">Sofa Cleaning</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="font-semibold text-white mb-3">Company</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#about" class="hover:text-white">About Us</a></li>
+            <li><a href="#testimonials" class="hover:text-white">Reviews</a></li>
+            <li><a href="#" class="hover:text-white">Careers</a></li>
+            <li><a href="#contact" class="hover:text-white">Contact</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="font-semibold text-white mb-3">Support</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="hover:text-white">Help Center</a></li>
+            <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+            <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-white">Refund Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
+        <div>© <span id="year"></span> Swachify. All rights reserved.</div>
+        <div class="flex gap-6">
+          <a href="#" class="hover:text-white">Facebook</a>
+          <a href="#" class="hover:text-white">Instagram</a>
+          <a href="#" class="hover:text-white">Twitter</a>
+          <a href="#" class="hover:text-white">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- AUTH MODAL -->
+  <div id="authModal" class="fixed inset-0 hidden items-center justify-center p-4 z-50">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="toggleAuth(false)"></div>
+    <div class="relative w-full max-w-md rounded-2xl bg-white border-2 border-slate-200 shadow-2xl p-8 slide-in">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold">Book Your Cleaning</h3>
+        <button class="text-slate-400 hover:text-slate-900 text-2xl leading-none" onclick="toggleAuth(false)">&times;</button>
+      </div>
+
+      <div id="authAlert" class="hidden"></div>
+
+      <div class="flex gap-2 p-1 bg-slate-100 rounded-xl mb-6">
+        <button id="tabLogin" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all" onclick="switchTab('login')">Login</button>
+        <button id="tabRegister" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="text-sm font-medium block mb-2">Email Address</label>
+          <input id="loginEmail" type="email" required 
+                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors" 
+                 placeholder="your@email.com" />
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-2">Password</label>
+          <input id="loginPassword" type="password" required 
+                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors" 
+                 placeholder="Enter password" />
+        </div>
+        <div class="flex items-center justify-between text-sm">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input id="rememberMe" type="checkbox" class="w-4 h-4 rounded border-slate-300 text-teal-600" />
+            <span>Remember me</span>
+          </label>
+          <button type="button" class="text-teal-600 hover:text-teal-700 font-medium" onclick="forgotPassword()">
+            Forgot password?
+          </button>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold hover:shadow-lg hover:scale-[1.02] transition-all">
+          Sign In
         </button>
       </form>
+
+      <!-- REGISTER FORM -->
+      <form id="registerForm" class="space-y-4 hidden">
+        <div>
+          <label class="text-sm font-medium block mb-2">Full Name</label>
+          <input id="regName" type="text" required 
+                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors" 
+                 placeholder="Your name" />
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-2">Email Address</label>
+          <input id="regEmail" type="email" required 
+                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors" 
+                 placeholder="your@email.com" />
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-2">Phone Number</label>
+          <input id="regPhone" type="tel" required 
+                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors" 
+                 placeholder="+91 98765 43210" />
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-2">Password</label>
+          <input id="regPassword" type="password" minlength="6" required 
+                 class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors" 
+                 placeholder="Min 6 characters" />
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold hover:shadow-lg hover:scale-[1.02] transition-all">
+          Create Account
+        </button>
+      </form>
+
+      <p class="mt-6 text-center text-xs text-slate-500">
+        By continuing, you agree to our <a href="#" class="text-teal-600 hover:underline">Terms</a> and <a href="#" class="text-teal-600 hover:underline">Privacy Policy</a>.
+      </p>
     </div>
   </div>
 
-
   <script>
-    // --- Data Models ---
-    const STORAGE_KEYS = {
-      BOOKINGS: 'swachify_bookings',
-      TICKETS: 'swachify_tickets',
-      NOTIFICATIONS: 'swachify_notifications'
+    // Utility functions
+    const $ = (id) => document.getElementById(id);
+    
+    const showAlert = (type, message) => {
+      const alert = $("authAlert");
+      alert.className = "p-4 rounded-xl text-sm mb-4";
+      
+      if (type === "success") {
+        alert.classList.add("bg-emerald-50", "text-emerald-800", "border-2", "border-emerald-200");
+      } else if (type === "error") {
+        alert.classList.add("bg-rose-50", "text-rose-800", "border-2", "border-rose-200");
+      } else if (type === "info") {
+        alert.classList.add("bg-blue-50", "text-blue-800", "border-2", "border-blue-200");
+      }
+      
+      alert.innerHTML = message;
+      alert.classList.remove("hidden");
+      
+      if (type === "success") {
+        setTimeout(() => clearAlert(), 5000);
+      }
+    };
+    
+    const clearAlert = () => {
+      $("authAlert").className = "hidden";
+      $("authAlert").innerHTML = "";
     };
 
-    let bookings = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKINGS) || '[]');
-    let tickets = JSON.parse(localStorage.getItem(STORAGE_KEYS.TICKETS) || '[]');
-    let notifications = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]');
-    
-    // Services Data for Search & Navigation
-    const servicesData = [
-        { category: 'Cleaning & Pest Control', subCategory: 'Bedroom Cleaning', image: 'images1/cleaning&pest control/bedroom-cleaning.jpg', parentViewId: 'sub-services-cleaning-view', targetViewId: 'pricing-bedroom' },
-        { category: 'Cleaning & Pest Control', subCategory: 'Bathroom Cleaning', image: 'images1/cleaning&pest control/bathroom cleaning.jpeg', parentViewId: 'sub-services-cleaning-view', targetViewId: 'pricing-generic' },
-        { category: 'Cleaning & Pest Control', subCategory: 'Kitchen Cleaning', image: 'images1/cleaning&pest control/kitchen cleaning.jpg', parentViewId: 'sub-services-cleaning-view', targetViewId: 'pricing-generic' },
-        { category: 'Cleaning & Pest Control', subCategory: 'Living Area Cleaning', image: 'images1/cleaning&pest control/living area cleaning.jpg', parentViewId: 'sub-services-cleaning-view', targetViewId: 'pricing-generic' },
-        { category: 'Cleaning & Pest Control', subCategory: 'Sofa & Carpet Cleaning', image: 'images1/cleaning&pest control/sofa cleaning.jpg', parentViewId: 'sub-services-cleaning-view', targetViewId: 'pricing-generic' },
-        { category: 'Cleaning & Pest Control', subCategory: 'Pest Control', image: 'images1/cleaning&pest control/pest control.jpg', parentViewId: 'sub-services-cleaning-view', targetViewId: 'pricing-generic' },
-        { category: 'Electrician, Plumber & Carpenter', subCategory: 'Switch & Sockets', image: 'images1/electrician/socket.jpg', parentViewId: 'sub-services-electrician-view', targetViewId: 'pricing-generic' },
-        { category: 'Electrician, Plumber & Carpenter', subCategory: 'Fan Repair', image: 'images1/electrician/fan.jpg', parentViewId: 'sub-services-electrician-view', targetViewId: 'pricing-generic' },
-        { category: 'Electrician, Plumber & Carpenter', subCategory: 'Wiring', image: 'images1/electrician/wiring.jpg', parentViewId: 'sub-services-electrician-view', targetViewId: 'pricing-generic' },
-        { category: 'Electrician, Plumber & Carpenter', subCategory: 'Bath Fitting', image: 'images1/electrician/bath.jpg', parentViewId: 'sub-services-electrician-view', targetViewId: 'pricing-generic' },
-        { category: 'Electrician, Plumber & Carpenter', subCategory: 'Sink & Basin Repair', image: 'images1/electrician/sink.jpg', parentViewId: 'sub-services-electrician-view', targetViewId: 'pricing-generic' },
-        { category: 'Electrician, Plumber & Carpenter', subCategory: 'Carpenter', image: 'images1/electrician/carpenter.jpg', parentViewId: 'sub-services-electrician-view', targetViewId: 'pricing-generic' },
-        { category: 'Painting & Waterproofing', subCategory: 'Full House Painting', image: 'images1/painting/house.jpeg', parentViewId: 'sub-services-painting-view', targetViewId: 'pricing-generic' },
-        { category: 'Painting & Waterproofing', subCategory: 'Room Painting', image: 'images1/painting/room.png', parentViewId: 'sub-services-painting-view', targetViewId: 'pricing-generic' },
-        { category: 'Painting & Waterproofing', subCategory: 'Exterior Painting', image: 'images1/painting/exterior.png', parentViewId: 'sub-services-painting-view', targetViewId: 'pricing-generic' },
-        { category: 'Painting & Waterproofing', subCategory: 'Waterproofing', image: 'images1/painting/waterproof.webp', parentViewId: 'sub-services-painting-view', targetViewId: 'pricing-generic' },
-        { category: 'AC & Appliances', subCategory: 'AC Service & Repair', image: 'images1/AC/ac repair.jpg', parentViewId: 'sub-services-ac-view', targetViewId: 'pricing-generic' },
-        { category: 'AC & Appliances', subCategory: 'Refrigerator Repair', image: 'images1/AC/fridge.jpg', parentViewId: 'sub-services-ac-view', targetViewId: 'pricing-generic' },
-        { category: 'AC & Appliances', subCategory: 'Washing Machine Repair', image: 'images1/AC/washin.jpeg', parentViewId: 'sub-services-ac-view', targetViewId: 'pricing-generic' },
-        { category: 'AC & Appliances', subCategory: 'Microwave Repair', image: 'images1/AC/oven.jpg', parentViewId: 'sub-services-ac-view', targetViewId: 'pricing-generic' }
-    ];
+    // Set year
+    $("year").textContent = new Date().getFullYear();
 
-    const employees = [
-      { id: 1, name: 'Arun Kumar', services: ['Home Cleaning', 'Kitchen', 'Bathroom'], status: 'Available', phone: '+91 98765 11111',location: 'Hyderabad'},
-      { id: 2, name: 'Priya Sharma', services: ['Office Cleaning', 'Sofa & Carpet'], status: 'Available', phone: '+91 98765 22222',location: 'Bangalore' },
-      { id: 3, name: 'Ravi Singh', services: ['Pest Control', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 33333' ,location: 'Hyderabad'},
-      { id: 4, name: 'Sunita Devi', services: ['Kitchen', 'Bathroom', 'Home Cleaning'], status: 'Available', phone: '+91 98765 44444',location: 'Delhi' },
-      { id: 5, name: 'Anil Mehta', services: ['Painting', 'Home Cleaning'], status: 'Available', phone: '+91 98765 55555',location: 'Mumbai' },
-      { id: 6, name: 'Geeta Gupta', services: ['AC Service', 'Appliance Repair'], status: 'Available', phone: '+91 98765 66666',location: 'Bangalore' },
-      { id: 7, name: 'Sanjay Verma', services: ['Office Cleaning', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 77777',location: 'Delhi' },
-      { id: 8, name: 'Meena Kumari', services: ['Sofa & Carpet', 'Home Cleaning'], status: 'Available', phone: '+91 98765 88888' ,location: 'Mumbai'}
-    ];
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        document.getElementById('splash').style.opacity = '0';
-        setTimeout(() => document.getElementById('splash').style.display = 'none', 500);
-      }, 1500);
-
-      renderEmployees();
-      updateDashboard();
-      renderNotifications();
-      
-      const today = new Date().toISOString().split('T')[0];
-      // Set min date for both date pickers
-      const datePickers = document.querySelectorAll('input[type="date"]');
-      datePickers.forEach(picker => picker.min = today);
+    // Mobile menu toggle
+    $("mobileMenuBtn").addEventListener("click", () => {
+      $("mobileMenu").classList.toggle("hidden");
     });
 
-    function toggleMobileSearch() {
-        const search = document.getElementById('mobileSearch');
-        search.classList.toggle('hidden');
-    }
-
-    // --- NEW GLOBAL SEARCH LOGIC ---
-    function closeGlobalSearch() {
-        document.getElementById('globalSearchResults').classList.add('hidden');
-        document.getElementById('searchInput').value = '';
-        const mobileSearchInput = document.querySelector('#mobileSearch input');
-        if (mobileSearchInput) {
-            mobileSearchInput.value = '';
-        }
-    }
-
-    function handleSearch(event) {
-        const query = event.target.value.toLowerCase().trim();
-        const resultsContainer = document.getElementById('searchResultsContainer');
-        const searchDisplay = document.getElementById('searchQueryDisplay');
-        const searchOverlay = document.getElementById('globalSearchResults');
-
-        if (query.length < 2) {
-            searchOverlay.classList.add('hidden');
-            return;
-        }
-
-        searchOverlay.classList.remove('hidden');
-        searchDisplay.textContent = query;
-
-        const searchResults = {
-            services: servicesData.filter(s => s.category.toLowerCase().includes(query) || s.subCategory.toLowerCase().includes(query)),
-            bookings: bookings.filter(b => b.customerName.toLowerCase().includes(query) || b.service.toLowerCase().includes(query) || b.address.toLowerCase().includes(query)),
-            tickets: tickets.filter(t => t.customerName.toLowerCase().includes(query) || t.service.toLowerCase().includes(query) || t.employee.toLowerCase().includes(query)),
-            employees: employees.filter(e => e.name.toLowerCase().includes(query) || e.location.toLowerCase().includes(query) || e.services.some(s => s.toLowerCase().includes(query)))
-        };
-
-        renderSearchResults(searchResults);
-    }
-
-    function renderSearchResults(results) {
-        const container = document.getElementById('searchResultsContainer');
-        container.innerHTML = '';
-        let totalResults = 0;
-
-        // Render Services
-        if (results.services.length > 0) {
-            totalResults += results.services.length;
-            let html = '<div class="result-category"><h3 class="font-bold text-lg mb-2 border-b pb-2">Services</h3><div class="space-y-2">';
-            results.services.forEach(item => {
-                html += `
-                    <div class="p-3 rounded-lg hover:bg-slate-100 cursor-pointer flex items-center gap-4" onclick="navigateToServiceResult('${item.parentViewId}', '${item.targetViewId}', '${item.subCategory}')">
-                        <img src="${item.image}" class="w-12 h-12 rounded-md object-cover">
-                        <div>
-                            <p class="font-semibold text-slate-700">${item.subCategory}</p>
-                            <p class="text-sm text-slate-500">${item.category}</p>
-                        </div>
-                    </div>`;
-            });
-            container.innerHTML += html + '</div></div>';
-        }
-        
-        // Render Bookings
-        if (results.bookings.length > 0) {
-            totalResults += results.bookings.length;
-            let html = '<div class="result-category"><h3 class="font-bold text-lg mb-2 border-b pb-2">Bookings</h3><div class="space-y-2">';
-            results.bookings.forEach(item => {
-                html += `
-                    <div class="p-3 rounded-lg hover:bg-slate-100 cursor-pointer" onclick="navigateToSection('bookings')">
-                         <p class="font-semibold text-slate-700">${item.service}</p>
-                         <p class="text-sm text-slate-500">For: ${item.customerName} on ${new Date(item.date).toLocaleDateString()}</p>
-                    </div>`;
-            });
-            container.innerHTML += html + '</div></div>';
-        }
-
-        // Render Tickets
-        if (results.tickets.length > 0) {
-            totalResults += results.tickets.length;
-            let html = '<div class="result-category"><h3 class="font-bold text-lg mb-2 border-b pb-2">Tickets</h3><div class="space-y-2">';
-            results.tickets.forEach(item => {
-                html += `
-                    <div class="p-3 rounded-lg hover:bg-slate-100 cursor-pointer" onclick="navigateToSection('tickets')">
-                         <p class="font-semibold text-slate-700">Ticket #${item.id.toString().slice(-6)} - ${item.service}</p>
-                         <p class="text-sm text-slate-500">Assigned to: ${item.employee} for ${item.customerName}</p>
-                    </div>`;
-            });
-            container.innerHTML += html + '</div></div>';
-        }
-
-        // Render Employees
-        if (results.employees.length > 0) {
-            totalResults += results.employees.length;
-            let html = '<div class="result-category"><h3 class="font-bold text-lg mb-2 border-b pb-2">Employees</h3><div class="space-y-2">';
-            results.employees.forEach(item => {
-                html += `
-                    <div class="p-3 rounded-lg hover:bg-slate-100 cursor-pointer flex items-center gap-4" onclick="navigateToSection('employees')">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold">${item.name.charAt(0)}</div>
-                        <div>
-                            <p class="font-semibold text-slate-700">${item.name}</p>
-                            <p class="text-sm text-slate-500">${item.location} - ${item.services.join(', ')}</p>
-                        </div>
-                    </div>`;
-            });
-            container.innerHTML += html + '</div></div>';
-        }
-
-        if (totalResults === 0) {
-            container.innerHTML = '<p class="text-slate-500 text-center py-8">No results found.</p>';
-        }
-    }
-
-    function navigateToServiceResult(parentViewId, targetViewId, subCategory) {
-        showSection('services');
-        navigateTo(parentViewId);
-        setTimeout(() => navigateTo(targetViewId, subCategory), 100);
-        closeGlobalSearch();
-    }
-
-    function navigateToSection(sectionId) {
-        showSection(sectionId);
-        closeGlobalSearch();
-    }
-    // --- END GLOBAL SEARCH LOGIC ---
-
-
-    // Mobile Menu
-    document.getElementById('menuToggle').addEventListener('click', toggleSidebar);
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      
-      sidebar.classList.toggle('-translate-x-full');
-      overlay.classList.toggle('hidden');
-    }
-
-    // Navigation
-    function showSection(section) {
-      document.querySelectorAll('.content-section').forEach(s => {
-          s.classList.add('hidden');
-          s.classList.remove('active-section');
+    // Close mobile menu on link click
+    document.querySelectorAll('#mobileMenu a').forEach(link => {
+      link.addEventListener('click', () => {
+        $("mobileMenu").classList.add("hidden");
       });
-      const activeSection = document.getElementById(section);
-      activeSection.classList.remove('hidden');
-      activeSection.classList.add('active-section');
+    });
+
+    // Modal controls
+    const toggleAuth = (open) => {
+      const modal = $("authModal");
+      modal.classList.toggle("hidden", !open);
+      modal.classList.toggle("flex", open);
+      if (open) {
+        switchTab("login");
+        clearAlert();
+      }
+    };
+    
+    $("openAuth").onclick = () => toggleAuth(true);
+
+    // Tab switching
+    function switchTab(tab) {
+      const isLogin = tab === "login";
       
-      document.querySelectorAll('.sidebar-btn').forEach(btn => {
-        btn.classList.remove('sidebar-active', 'text-white');
-        btn.classList.add('text-slate-600');
-        if (btn.dataset.section === section) {
-          btn.classList.add('sidebar-active', 'text-white');
-          btn.classList.remove('text-slate-600');
-        }
+      $("tabLogin").className = isLogin 
+        ? "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all bg-white shadow-sm"
+        : "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+      
+      $("tabRegister").className = !isLogin 
+        ? "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all bg-white shadow-sm"
+        : "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+      
+      $("loginForm").classList.toggle("hidden", !isLogin);
+      $("registerForm").classList.toggle("hidden", isLogin);
+      
+      clearAlert();
+    }
+
+    // Storage keys
+    const STORAGE_KEYS = {
+      USERS: "swachify_users",
+      CURRENT: "swachify_current_user"
+    };
+
+    // User management
+    const getUsers = () => {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || "[]");
+      } catch {
+        return [];
+      }
+    };
+
+    const saveUsers = (users) => {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    };
+
+    const setCurrentUser = (user) => {
+      const session = {
+        user: user,
+        loginTime: new Date().toISOString(),
+        sessionId: Date.now().toString(36) + Math.random().toString(36).substr(2)
+      };
+      localStorage.setItem(STORAGE_KEYS.CURRENT, JSON.stringify(session));
+    };
+
+    const getCurrentUser = () => {
+      try {
+        const session = JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT) || "null");
+        return session ? session.user : null;
+      } catch {
+        return null;
+      }
+    };
+
+    // Check if logged in
+    if (getCurrentUser()) {
+      // Redirect to dashboard
+      // location.href = "dashboard.html";
+    }
+
+    // Password validation
+    const validatePassword = (password) => {
+      if (password.length < 6) {
+        return { valid: false, message: "Password must be at least 6 characters" };
+      }
+      return { valid: true, message: "" };
+    };
+
+    // Email simulation
+    const sendPasswordResetEmail = async (email, user) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          console.log(`📧 Password reset email sent to: ${email}`);
+          console.log(`Reset link: https://swachify.com/reset?token=${Date.now()}`);
+          resolve(true);
+        }, 1000);
       });
+    };
 
-      if (window.innerWidth < 1024) toggleSidebar();
-      if (section === 'bookings') renderBookings();
-      if (section === 'tickets') renderTickets();
-      if (section === 'employees') renderEmployees();
-    }
-    
-    // --- NEW SERVICE SECTION LOGIC ---
-    let navigationStack = ['main-view'];
-    let lastServiceGroup = '';
-    let lastSubService = '';
-    
-    const bookingForm = document.getElementById('booking-form');
+    // REGISTRATION
+    $("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearAlert();
 
-    function navigateTo(viewId, data = null) {
-        const allServiceViews = document.querySelectorAll('#services .view');
+      const name = $("regName").value.trim();
+      const email = $("regEmail").value.trim().toLowerCase();
+      const phone = $("regPhone").value.trim();
+      const password = $("regPassword").value;
 
-        if (viewId.startsWith('sub-services-') && data) {
-            lastServiceGroup = data;
-        } else if (viewId.startsWith('pricing-') && data) {
-            lastSubService = data;
-            if (viewId === 'pricing-generic') {
-                const genericHeader = document.querySelector('#pricing-generic-view header h1');
-                if (genericHeader) genericHeader.textContent = data + ' Plans';
-            }
-        } else if (viewId === 'booking-form' && data) {
-            document.getElementById('selected-service-group').value = lastServiceGroup;
-            document.getElementById('selected-sub-service').value = lastSubService;
-            document.getElementById('selected-service-plan').value = data;
-        }
-
-        if (viewId === 'main') {
-            navigationStack = ['main-view'];
-            viewId = 'main-view';
-        }
-
-        const targetViewId = viewId.endsWith('-view') ? viewId : viewId + '-view';
-        const targetView = document.getElementById(targetViewId);
-        
-        if (!targetView) {
-            console.error("View not found:", targetViewId);
-            return;
-        }
-
-        allServiceViews.forEach(view => view.classList.remove('active'));
-        targetView.classList.add('active');
-
-        if (navigationStack[navigationStack.length - 1] !== targetViewId) {
-            navigationStack.push(targetViewId);
-        }
-    }
-
-    function goBack() {
-        if (navigationStack.length > 1) {
-            navigationStack.pop();
-            const previousViewId = navigationStack[navigationStack.length - 1];
-            const previousView = document.getElementById(previousViewId);
-            if (previousView) {
-                document.querySelectorAll('#services .view').forEach(view => view.classList.remove('active'));
-                previousView.classList.add('active');
-            }
-        }
-    }
-
-    document.querySelectorAll('.time-slot-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            document.querySelectorAll('.time-slot-btn').forEach(btn => {
-                btn.classList.remove('bg-teal-600', 'text-white');
-                btn.classList.add('bg-slate-100', 'text-slate-700');
-            });
-            button.classList.add('bg-teal-600', 'text-white');
-            button.classList.remove('bg-slate-100', 'text-slate-700');
-            document.getElementById('time').value = button.dataset.time;
-        });
-    });
-
-    bookingForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const serviceGroup = document.getElementById('selected-service-group').value;
-        const subService = document.getElementById('selected-sub-service').value;
-        const servicePlan = document.getElementById('selected-service-plan').value;
-        
-        const booking = {
-            id: Date.now(),
-            service: `${serviceGroup} - ${subService} (${servicePlan})`,
-            price: 'Varies',
-            customerName: document.getElementById('name').value,
-            phone: document.getElementById('phone').value,
-            address: document.getElementById('address').value,
-            date: document.getElementById('date').value,
-            time: document.getElementById('time').value,
-            status: 'Pending',
-            createdAt: new Date().toISOString()
-        };
-
-        bookings.push(booking);
-        localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
-        addNotification(`New booking: ${booking.service} for ${booking.customerName}`);
-        
-        navigateTo('acknowledgement');
-        bookingForm.reset();
-        document.querySelectorAll('.time-slot-btn').forEach(btn => {
-            btn.classList.remove('bg-teal-600', 'text-white');
-            btn.classList.add('bg-slate-100', 'text-slate-700');
-        });
-        updateDashboard();
-    });
-
-
-    // Render Bookings
-    function renderBookings() {
-      const container = document.getElementById('bookingsList');
-      const pendingBookings = bookings.filter(b => b.status === 'Pending');
-
-      if (pendingBookings.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-slate-400"><svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><p>No pending bookings</p></div>`;
-        return;
+      if (!name || !email || !phone || !password) {
+        return showAlert("error", "Please fill in all fields.");
       }
 
-      container.innerHTML = pendingBookings.map(booking => `
-        <div class="bg-white rounded-xl p-6 border-2 border-slate-200 hover:border-teal-300 transition-all">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex-1">
-              <h3 class="font-bold text-lg mb-2">${booking.service}</h3>
-              <div class="space-y-1 text-sm text-slate-600">
-                <p>👤 ${booking.customerName}</p><p>📞 ${booking.phone}</p><p>📍 ${booking.address}</p>
-                <p>📅 ${new Date(booking.date).toLocaleDateString()} at ${booking.time}</p>
-                ${booking.price !== 'Varies' ? `<p class="text-teal-600 font-semibold">${booking.price}</p>` : ''}
-              </div>
-            </div>
-            <div class="flex flex-col gap-2">
-              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-600 text-center">${booking.status}</span>
-              <button onclick="openEmployeeModal(${booking.id})" class="px-4 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition-all">Assign Employee</button>
-            </div>
-          </div>
-        </div>`).join('');
-    }
-    
-    function generateOTP() {
-      return Math.floor(1000 + Math.random() * 9000).toString();
-    }
-
-    function promptForOTP(ticketId, type) {
-      document.getElementById('otpTicketId').value = ticketId;
-      document.getElementById('otpType').value = type;
-      document.getElementById('otpModalTitle').textContent = `Verify ${type === 'start' ? 'Start' : 'Completion'} OTP`;
-      document.getElementById('otpModal').classList.remove('hidden');
-      document.getElementById('otpInput').focus();
-    }
-    
-    function closeOtpModal() {
-        document.getElementById('otpModal').classList.add('hidden');
-        document.getElementById('otpForm').reset();
-        document.getElementById('otpError').textContent = '';
-    }
-    
-    function verifyOTP(event) {
-      event.preventDefault();
-      const ticketId = parseInt(document.getElementById('otpTicketId').value);
-      const type = document.getElementById('otpType').value;
-      const enteredOtp = document.getElementById('otpInput').value;
-      const errorDiv = document.getElementById('otpError');
-      
-      const ticket = tickets.find(t => t.id === ticketId);
-      let correctOtp;
-
-      if (type === 'start') {
-        correctOtp = ticket.startOTP;
-      } else {
-        correctOtp = ticket.endOTP;
+      const passwordCheck = validatePassword(password);
+      if (!passwordCheck.valid) {
+        return showAlert("error", passwordCheck.message);
       }
 
-      if (enteredOtp === correctOtp) {
-        errorDiv.textContent = '';
-        if (type === 'start') {
-          ticket.status = 'In Progress';
-          ticket.endOTP = generateOTP();
-          addNotification(`Service started for ticket #${ticket.id}`);
-        } else {
-          ticket.status = 'Completed';
-          ticket.completedAt = new Date().toISOString();
-          const employee = employees.find(e => e.id === ticket.employeeId);
-          if (employee) employee.status = 'Available';
-          addNotification(`Service completed for ticket #${ticket.id}`);
-        }
-        
-        localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(tickets));
-        closeOtpModal();
-        renderTickets();
-        renderEmployees();
-        updateDashboard();
-
-      } else {
-        errorDiv.textContent = 'Invalid OTP. Please try again.';
+      const users = getUsers();
+      if (users.some(u => u.email === email)) {
+        return showAlert("error", "Account already exists. Please login.");
       }
-    }
 
-    function openEmployeeModal(bookingId) {
-      const booking = bookings.find(b => b.id === bookingId);
-      document.getElementById('selectedBookingId').value = bookingId;
-      document.getElementById('bookingDetailsDisplay').textContent = `${booking.service} - ${booking.customerName}`;
-
-      const availableEmployees = employees.filter(e => e.status === 'Available');
-      const container = document.getElementById('employeeSelectionList');
-
-      container.innerHTML = availableEmployees.map(emp => `
-        <div onclick="assignEmployeeToBooking(${emp.id})" class="p-4 border-2 border-slate-200 rounded-xl hover:border-teal-500 hover:bg-teal-50 cursor-pointer transition-all">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold">${emp.name.charAt(0)}</div>
-            <div>
-              <p class="font-bold">${emp.name}</p>
-              <p class="text-xs text-slate-600">${emp.services.join(', ')}</p>
-              <p class="text-xs text-green-600 mt-1">● ${emp.status}</p>
-            </div>
-          </div>
-        </div>`).join('');
-
-      document.getElementById('employeeModal').classList.remove('hidden');
-    }
-
-    function closeEmployeeModal() {
-      document.getElementById('employeeModal').classList.add('hidden');
-    }
-
-    function assignEmployeeToBooking(employeeId) {
-      const bookingId = parseInt(document.getElementById('selectedBookingId').value);
-      const booking = bookings.find(b => b.id === bookingId);
-      const employee = employees.find(e => e.id === employeeId);
-
-      booking.status = 'Assigned';
-      booking.assignedTo = employee.name;
-      booking.employeeId = employeeId;
-
-      const ticket = {
+      const newUser = {
         id: Date.now(),
-        bookingId: bookingId,
-        service: booking.service,
-        customerName: booking.customerName,
-        address: booking.address,
-        date: booking.date,
-        time: booking.time,
-        employee: employee.name,
-        employeeId: employeeId,
-        status: 'Open',
-        createdAt: new Date().toISOString(),
-        startOTP: generateOTP(),
-        endOTP: null
+        name: name,
+        email: email,
+        phone: phone,
+        password: password,
+        role: "Customer",
+        createdAt: new Date().toISOString()
       };
 
-      tickets.push(ticket);
-      employee.status = 'Assigned';
+      users.push(newUser);
+      saveUsers(users);
 
-      localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
-      localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(tickets));
+      showAlert("success", "✓ Account created! Please login to continue.");
+      
+      setTimeout(() => {
+        switchTab("login");
+        $("loginEmail").value = email;
+      }, 1500);
 
-      addNotification(`Ticket assigned to ${employee.name} for ${booking.service}`);
-      closeEmployeeModal();
-      renderBookings();
-      renderEmployees();
-      updateDashboard();
-      showSection('tickets');
-    }
+      $("registerForm").reset();
+    });
 
-    function renderTickets(filter = 'all') {
-      const container = document.getElementById('ticketsList');
-      let filteredTickets = tickets;
+    // LOGIN
+    $("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearAlert();
 
-      if (filter !== 'all') {
-        if (filter === 'in-progress') {
-           filteredTickets = tickets.filter(t => t.status === 'In Progress');
-        } else {
-           filteredTickets = tickets.filter(t => t.status.toLowerCase() === filter);
-        }
+      const email = $("loginEmail").value.trim().toLowerCase();
+      const password = $("loginPassword").value;
+
+      if (!email || !password) {
+        return showAlert("error", "Please enter email and password.");
       }
 
-      if (filteredTickets.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-slate-400"><svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg><p>No tickets found</p></div>`;
-        return;
+      const users = getUsers();
+      const user = users.find(u => u.email === email);
+
+      if (!user) {
+        return showAlert("error", "No account found with this email.");
       }
 
-      container.innerHTML = filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(ticket => {
-        let statusColor, borderColor, actionButton;
+      if (user.password !== password) {
+        return showAlert("error", "Incorrect password.");
+      }
 
-        switch (ticket.status) {
-          case 'Open':
-            statusColor = 'bg-amber-100 text-amber-600';
-            borderColor = 'border-amber-200';
-            actionButton = `<button onclick="promptForOTP(${ticket.id}, 'start')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all">Start Service</button>`;
-            break;
-          case 'In Progress':
-            statusColor = 'bg-blue-100 text-blue-600';
-            borderColor = 'border-blue-200';
-            actionButton = `<button onclick="promptForOTP(${ticket.id}, 'end')" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-all">Complete Service</button>`;
-            break;
-          case 'Completed':
-            statusColor = 'bg-emerald-100 text-emerald-600';
-            borderColor = 'border-emerald-200';
-            actionButton = `<div class="text-emerald-600 font-semibold text-center md:text-right">✓ Completed</div>`;
-            break;
-        }
+      user.lastLogin = new Date().toISOString();
+      const userIndex = users.findIndex(u => u.id === user.id);
+      users[userIndex] = user;
+      saveUsers(users);
 
-        const otpForDemo = ticket.status === 'Open' ? ticket.startOTP : (ticket.endOTP || 'N/A');
+      setCurrentUser(user);
 
-        return `
-        <div class="bg-white rounded-xl p-6 border-2 ${borderColor}">
-          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-3">
-                <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusColor}">${ticket.status}</span>
-                <span class="text-xs text-slate-500">Ticket #${ticket.id.toString().slice(-6)}</span>
-              </div>
-              <h3 class="font-bold text-lg mb-2">${ticket.service}</h3>
-              <div class="space-y-1 text-sm text-slate-600">
-                <p>👤 ${ticket.customerName}</p>
-                <p>👷 Assigned to: <span class="font-semibold text-teal-600">${ticket.employee}</span></p>
-                <p>📍 ${ticket.address}</p>
-                <p>📅 ${new Date(ticket.date).toLocaleDateString()} at ${ticket.time}</p>
-              </div>
-            </div>
-            <div class="flex flex-col items-stretch gap-3">
-              ${actionButton}
-              <div class="mt-2 p-2 bg-slate-100 rounded-lg text-center">
-                <p class="text-xs text-slate-500">For Demo: Customer's OTP</p>
-                <p class="font-bold text-xl text-red-500 tracking-widest">${otpForDemo}</p>
-              </div>
-            </div>
-          </div>
-        </div>`
-      }).join('');
+      showAlert("success", `✓ Welcome ${user.name}! Redirecting...`);
+
+      setTimeout(() => {
+        location.href = "dashboard.html";
+      }, 1000);
+    });
+
+    // FORGOT PASSWORD
+    async function forgotPassword() {
+      clearAlert();
+
+      const email = $("loginEmail").value.trim().toLowerCase();
+
+      if (!email) {
+        return showAlert("error", "Please enter your email first.");
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return showAlert("error", "Please enter a valid email.");
+      }
+
+      const users = getUsers();
+      const user = users.find(u => u.email === email);
+
+      if (!user) {
+        return showAlert("error", "No account found with this email.");
+      }
+
+      showAlert("info", "Sending reset email...");
+
+      await sendPasswordResetEmail(email, user);
+
+      showAlert("success", `✓ Password reset link sent to <strong>${email}</strong>. Check console for demo link.`);
     }
 
-    function filterTickets(filter) {
-      document.querySelectorAll('.ticket-filter-btn').forEach(btn => {
-        btn.classList.remove('bg-teal-600', 'text-white');
-        btn.classList.add('bg-slate-200', 'text-slate-700');
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       });
-      event.target.classList.add('bg-teal-600', 'text-white');
-      event.target.classList.remove('bg-slate-200', 'text-slate-700');
-      
-      renderTickets(filter);
-    }
-    
-    // --- NEW EMPLOYEE SECTION LOGIC ---
-    function renderEmployees() {
-        const listContainer = document.getElementById('employeeListContainer');
-        const selectedLocation = document.getElementById('locationFilter')?.value || 'all';
-
-        const filteredEmployees = selectedLocation === 'all'
-            ? employees
-            : employees.filter(emp => emp.location === selectedLocation);
-
-        if (filteredEmployees.length === 0) {
-            listContainer.innerHTML = '<p class="text-center text-slate-400 p-4">No employees in this location</p>';
-            return;
-        }
-
-        listContainer.innerHTML = `
-            <div class="space-y-2">
-                ${filteredEmployees.map(emp => `
-                    <div id="emp-name-${emp.id}" onclick="displayEmployeeDetails(${emp.id})" class="p-3 rounded-lg cursor-pointer hover:bg-teal-50 flex justify-between items-center transition-colors">
-                        <span class="font-semibold text-slate-700">${emp.name}</span>
-                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-
-    function displayEmployeeDetails(employeeId) {
-        // Highlight active name
-        document.querySelectorAll('#employeeListContainer > div > div').forEach(el => el.classList.remove('bg-teal-100', 'text-teal-800'));
-        document.getElementById(`emp-name-${employeeId}`).classList.add('bg-teal-100', 'text-teal-800');
-
-        const detailsContainer = document.getElementById('employeeDetailsContainer');
-        const emp = employees.find(e => e.id === employeeId);
-
-        if (!emp) return;
-
-        detailsContainer.innerHTML = `
-            <div class="flex flex-col items-center text-center">
-                <div class="w-24 h-24 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white text-4xl font-bold mb-4">
-                    ${emp.name.charAt(0)}
-                </div>
-                <h3 class="font-bold text-2xl">${emp.name}</h3>
-                <p class="text-sm px-3 py-1 rounded-full mt-2 ${emp.status === 'Available' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">● ${emp.status}</p>
-
-                <div class="text-left w-full mt-6 space-y-4">
-                    <div>
-                        <p class="text-xs text-slate-500 mb-1 font-semibold uppercase tracking-wider">Contact</p>
-                        <p class="text-slate-700">📞 ${emp.phone}</p>
-                        <p class="text-slate-700">📍 ${emp.location}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-500 mb-2 font-semibold uppercase tracking-wider">Specialties</p>
-                        <div class="flex flex-wrap gap-2">
-                        ${emp.services.map(s => `<span class="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">${s}</span>`).join('')}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    // --- END NEW EMPLOYEE SECTION LOGIC ---
-
-    // Notifications
-    function addNotification(message) {
-      const notification = { id: Date.now(), message, read: false, timestamp: new Date().toISOString() };
-      notifications.unshift(notification);
-      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
-      renderNotifications();
-      updateDashboard();
-    }
-
-    function renderNotifications() {
-      const container = document.getElementById('notificationList');
-      const badge = document.getElementById('notifBadge');
-      const unreadCount = notifications.filter(n => !n.read).length;
-      badge.textContent = unreadCount;
-      badge.classList.toggle('hidden', unreadCount === 0);
-
-      if (notifications.length === 0) {
-        container.innerHTML = '<p class="p-4 text-center text-slate-400">No notifications</p>';
-        return;
-      }
-
-      container.innerHTML = notifications.slice(0, 10).map(notif => `
-        <div class="p-4 hover:bg-slate-50 ${!notif.read ? 'bg-teal-50' : ''}">
-          <p class="text-sm ${!notif.read ? 'font-semibold' : ''}">${notif.message}</p>
-          <p class="text-xs text-slate-500 mt-1">${new Date(notif.timestamp).toLocaleString()}</p>
-        </div>`).join('');
-    }
-
-    function toggleNotifications() {
-      const panel = document.getElementById('notificationPanel');
-      panel.classList.toggle('hidden');
-      if (!panel.classList.contains('hidden')) {
-        notifications.forEach(n => n.read = true);
-        localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
-        renderNotifications();
-      }
-    }
-
-    function clearAllNotifications() {
-      notifications = [];
-      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
-      renderNotifications();
-    }
-
-    // Update Dashboard
-    function updateDashboard() {
-      document.getElementById('totalServices').textContent = bookings.length;
-      document.getElementById('activeBookings').textContent = bookings.filter(b => b.status === 'Pending').length;
-      document.getElementById('openTickets').textContent = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
-      document.getElementById('bookingBadge').textContent = bookings.filter(b => b.status === 'Pending').length;
-      document.getElementById('ticketBadge').textContent = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
-      
-      const recentBookings = bookings.slice(-5).reverse();
-      const recentContainer = document.getElementById('recentBookingsList');
-      recentContainer.innerHTML = recentBookings.length ? recentBookings.map(b => `<div class="p-3 border-2 border-slate-200 rounded-lg"><p class="font-semibold">${b.service}</p><p class="text-sm text-slate-600">${b.customerName}</p><span class="text-xs px-2 py-1 rounded-full ${b.status === 'Pending' ? 'bg-amber-100 text-amber-600' : 'bg-teal-100 text-teal-600'}">${b.status}</span></div>`).join('') : '<div class="text-center py-8 text-slate-400"><svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><p>No recent bookings</p></div>';
-
-      const activeTickets = tickets.filter(t => t.status !== 'Completed').slice(-5).reverse();
-      const ticketsContainer = document.getElementById('activeTicketsList');
-      ticketsContainer.innerHTML = activeTickets.length ? activeTickets.map(t => `<div class="p-3 border-2 border-amber-200 rounded-lg"><p class="font-semibold">${t.service}</p><p class="text-sm text-slate-600">👷 ${t.employee}</p><span class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-600">${t.status}</span></div>`).join('') : '<div class="text-center py-8 text-slate-400"><svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg><p>No active tickets</p></div>';
-    }
-
-    // Logout
-    function logout() {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('swachify_current_user'); 
-        window.location.href = 'index.html';
-      }
-    }
-
-    // Close dropdowns
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('button[onclick="toggleNotifications()"]') && !e.target.closest('#notificationPanel')) {
-        document.getElementById('notificationPanel').classList.add('hidden');
-      }
     });
   </script>
 </body>
 </html>
-
